@@ -97,8 +97,23 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScannerWrapper.cs" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Dlls\" />
+    <Content Include="Dlls\hasp_windows.dll" />
+    <Content Include="Dlls\Suprema.UFDatabase.dll" />
+    <Content Include="Dlls\Suprema.UFMatcher.dll" />
+    <Content Include="Dlls\Suprema.UFScanner.dll" />
+    <Content Include="Dlls\UFDatabase.dll" />
+    <Content Include="Dlls\UFDatabase.mdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Dlls\UFMatcher.dll" />
+    <Content Include="Dlls\UFScanner.dll" />
+    <Content Include="Dlls\UFScanner_IZZIX.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Dlls\Suprema.tlb" />
+    <None Include="Dlls\UFLicense.dat" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
