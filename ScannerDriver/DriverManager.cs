@@ -1,179 +1,93 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Suprema;
 
 namespace ScannerDriver
 {
-    public class DriverManager
+    public class DriverManager : Control, IScannerManager
     {
+        private readonly UFScannerManager manager;
+        private static DriverManager instance;
+        public Dictionary<string, ScannerWrapper> Scanners { get; } = new Dictionary<string, ScannerWrapper>();
 
-        public static void Main()
+        public bool IsRunning { get; private set; }
+
+        private DriverManager()
         {
-            var driver = new Driver();
-            driver.Init();
-            while (true)
-            {
-                var cmd = Console.ReadLine();
-                switch (cmd)
+            manager = new UFScannerManager(this);
+            manager.ScannerEvent += Manager_ScannerEvent;
+            manager.Init();
+        }
+
+        public static DriverManager GetManager()
+        {
+            if (instance != null) return instance;
+            instance = new DriverManager();
+            instance.CreateHandle();
+            return instance;
+        }
+
+        public void Start()
+        {
+
+            if (manager.Scanners != null)
+                for (var i = 0; i < manager.Scanners.Count; ++i)
                 {
-                    case "scan":
-                        driver.Scan();
-                        break;
-                    case "exit":
-                        return;
-                    case "enroll":
-                        driver.ExtractTemplate();
-                        break;
-
+                    var scanner = new ScannerWrapper(manager.Scanners[i], this);
+                    Scanners.Add(scanner.Id,scanner);
                 }
-            }
-        }
-    }
-
-    public class Driver : Control
-    {
-        const int MAX_TEMPLATE_SIZE = 1024;
-        int m_quality = 40;
-
-        UFS_STATUS status;
-        UFScannerManager scannerManager;
-        int nScannerNumber;
-        
-        private UFMatcher matcher;
-
-        public void Init()
-        {
-            CreateHandle();
-            scannerManager = new UFScannerManager(this);
-            status = scannerManager.Init();
-            if (status != UFS_STATUS.OK)
-            {
-                string error;
-                UFScanner.GetErrorString(status, out error);
-                throw new Exception(error);
-            }
-            if (scannerManager.Scanners.Count > 0)
-            {
-                scanner = scannerManager.Scanners[0];
-                scanner.Timeout = 5000;
-            }
-            scannerManager.ScannerEvent += ScannerEvent;
-            matcher = new UFMatcher();
-            if (matcher.InitResult != UFM_STATUS.OK)
-            {
-                string error;
-                UFMatcher.GetErrorString(matcher.InitResult, out error);
-                throw new Exception(error);
-            }
+            IsRunning = true;
         }
 
-        public void Scan()
+        public bool StartCapturing(string scannerId,out string error)
         {
-            if (scanner == null)
-                return;
-
-            status = scanner.ClearCaptureImageBuffer();
-            if (status != UFS_STATUS.OK)
+            if (string.IsNullOrEmpty(scannerId))
             {
-                string error;
-                UFScanner.GetErrorString(status, out error);
-                Console.WriteLine(error);
-                return;
-            }
-            scanner.CaptureEvent += Scanner_CaptureEvent;
-            status = scanner.StartCapturing();
-
-            if (status != UFS_STATUS.OK)
-            {
-                string error;
-                UFScanner.GetErrorString(status, out error);
-                Console.WriteLine(error);
-                return;
-            }
-
-        }
-
-        private int Scanner_CaptureEvent(object sender, UFScannerCaptureEventArgs e)
-        {
-            var template = new byte[MAX_TEMPLATE_SIZE];
-            int templateSize;
-            int enrollQuality;
-            status = ((UFScanner)sender).ExtractEx(MAX_TEMPLATE_SIZE, template, out templateSize, out enrollQuality);
-            if (status != UFS_STATUS.OK)
-            {
-                string error;
-                UFScanner.GetErrorString(status, out error);
-                Console.WriteLine(error);
-                return 1;
-            }
-            Console.WriteLine("Template:");
-            for (var i = 0; i < templateSize; ++i)
-                Console.Write(template[i] + " ");
-            return 1;
-        }
-
-        public void ScannerEvent(object sender, UFScannerManagerScannerEventArgs e)
-        {
-
-            if (scannerManager.Scanners.Count > 0)
-            {
-                scanner = scannerManager.Scanners[0];
-                scanner.Timeout = 5000;
-            }
-            else
-                scanner = null;
-
-        }
-
-        public  bool ExtractTemplate(out byte[] template, out string error)
-        {
-            template = new byte[MAX_TEMPLATE_SIZE];
-            try
-            {
-                scanner.ClearCaptureImageBuffer();
-                while (true)
-                {
-                    status = scanner.CaptureSingleImage();
-                    if (status != UFS_STATUS.OK)
-                    {
-                        UFScanner.GetErrorString(status, out error);
-                        return false;
-                    }
-
-                    int size;
-                    int enrollQuality;
-                    status = scanner.ExtractEx(MAX_TEMPLATE_SIZE, template, out size, out enrollQuality);
-
-                    if (status == UFS_STATUS.OK)
-                    {
-                        if (enrollQuality < m_quality)
-                        {
-                            continue;
-                        }
-                        else
-                        {
-                            return template;
-                        }
-                    }
-                    else
-                    {
-                        UFScanner.GetErrorString(status, out error);
-                        return null;
-                    }
-
-                }
-            }
-            catch (Exception ex)
-            {
-                error = ex.ToString();
+                error = "ScannerId is null";
                 return false;
             }
+            if (Scanners.ContainsKey(scannerId)) return Scanners[scannerId].StartCapturing(out error);
+            error = "Scanner not found";
+            return false;
+        }
+
+        public ScannerWrapper GetScanner(string scannerId, out string error)
+        {
+            error = "";
+            if (string.IsNullOrEmpty(scannerId))
+            {
+                error = "ScannerId is null";
+                return null;
+            }
+            if (Scanners.ContainsKey(scannerId)) return Scanners[scannerId];
+            error = "Scanner not found";
+            return null;
+        }
+
+        public ScannerWrapper GetFirstScanner()
+        {
+            if (Scanners.Count == 0)
+                return null;
+            return Scanners.First().Value;
+        }
+
+
+        protected override void Dispose(bool isDisposing)
+        {
+            if (isDisposing)
+            {
+                if (Scanners != null)
+                    foreach (var item in Scanners)
+                        item.Value.Dispose();
+                manager.Uninit();
+                IsRunning = false;
+            }
+            base.Dispose(isDisposing);
+        }
+
+        private void Manager_ScannerEvent(object sender, UFScannerManagerScannerEventArgs e)
+        {
         }
     }
 }

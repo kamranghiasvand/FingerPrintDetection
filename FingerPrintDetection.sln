@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FingerPrintDetectionWeb", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScannerDriver", "ScannerDriver\ScannerDriver.csproj", "{7007BABC-737D-40F1-A7AA-B2B5C5EE1077}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FingerPrintDetectionModel", "FingerPrintDetectionModel\FingerPrintDetectionModel.csproj", "{772A4BF9-0039-43F0-9167-581BCD1A7A58}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{7007BABC-737D-40F1-A7AA-B2B5C5EE1077}.Release|x64.Build.0 = Release|x64
 		{7007BABC-737D-40F1-A7AA-B2B5C5EE1077}.Release|x86.ActiveCfg = Release|x86
 		{7007BABC-737D-40F1-A7AA-B2B5C5EE1077}.Release|x86.Build.0 = Release|x86
+		{772A4BF9-0039-43F0-9167-581BCD1A7A58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{772A4BF9-0039-43F0-9167-581BCD1A7A58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{772A4BF9-0039-43F0-9167-581BCD1A7A58}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{772A4BF9-0039-43F0-9167-581BCD1A7A58}.Debug|x64.Build.0 = Debug|Any CPU
+		{772A4BF9-0039-43F0-9167-581BCD1A7A58}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{772A4BF9-0039-43F0-9167-581BCD1A7A58}.Debug|x86.Build.0 = Debug|Any CPU
+		{772A4BF9-0039-43F0-9167-581BCD1A7A58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{772A4BF9-0039-43F0-9167-581BCD1A7A58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{772A4BF9-0039-43F0-9167-581BCD1A7A58}.Release|x64.ActiveCfg = Release|Any CPU
+		{772A4BF9-0039-43F0-9167-581BCD1A7A58}.Release|x64.Build.0 = Release|Any CPU
+		{772A4BF9-0039-43F0-9167-581BCD1A7A58}.Release|x86.ActiveCfg = Release|Any CPU
+		{772A4BF9-0039-43F0-9167-581BCD1A7A58}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
