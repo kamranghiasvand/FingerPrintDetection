@@ -1,6 +1,7 @@
 ﻿using System.Web;
 using System.Web.Mvc;
-using FingerPrintDetectionWeb.Models;
+using FingerPrintDetectionModel;
+using FingerPrintDetectionWeb.Manager;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 
@@ -12,7 +13,7 @@ namespace FingerPrintDetectionWeb.Controllers
 
         public ApplicationUserManager UserManager => HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
         public ApplicationDbContext DbContext => HttpContext.GetOwinContext().Get<ApplicationDbContext>();
-        public ApplicationUser GetCurrentUser() => UserManager.FindById(User.Identity.GetUserId<long>());
+        public LogicalUser GetCurrentUser() => UserManager.FindById(User.Identity.GetUserId<long>());
 
         private void AddErrors(IdentityResult result)
         {
