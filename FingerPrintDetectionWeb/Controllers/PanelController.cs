@@ -6,10 +6,20 @@ using System.Web.Mvc;
 
 namespace FingerPrintDetectionWeb.Controllers
 {
+    [Authorize(Roles ="Admin")]
     public class PanelController : Controller
     {
-        // GET: Panel
         public ActionResult Index()
+        {
+            return View();
+        }
+
+        public ActionResult UserList()
+        {
+            return View();
+        }
+
+        public ActionResult AddUser()
         {
             return View();
         }
