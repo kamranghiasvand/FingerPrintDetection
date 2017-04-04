@@ -12557,3 +12557,9 @@ body {
     background-color: #373E4A;
     border-color: #373E4A;
 }
+.form-group.required .control-label:before{
+   color: red;
+   content: "*";
+   position: absolute;
+   margin-left: -10px;
+}

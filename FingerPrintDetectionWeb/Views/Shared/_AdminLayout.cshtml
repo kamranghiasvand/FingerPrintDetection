@@ -44,59 +44,28 @@
         <div class="row row-offcanvas row-offcanvas-left">
             <div class="col-xs-6 col-sm-3 sidebar-offcanvas" role="navigation">
                 <ul class="list-group panel">
-                    <li class="list-group-item"><i class="glyphicon glyphicon-align-justify"></i> <b>SIDE PANEL</b></li>
-                    <li class="list-group-item"><input type="text" class="form-control search-query" placeholder="Search Something"></li>
-                    <li class="list-group-item"><a href=""><i class="glyphicon glyphicon-home"></i>Dashboard </a></li>
-                    <li class="list-group-item"><a href=""><i class="glyphicon glyphicon-certificate"></i>Icons </a></li>
-                    <li class="list-group-item"><a href=""><i class="glyphicon glyphicon-th-list"></i>Tables and List </a></li>
-                    <li class="list-group-item"><a href=""><i class="glyphicon glyphicon-list-alt"></i>Forms</a></li>
-                    <li class="list-group-item"><a href=""><i class="glyphicon glyphicon-bell"></i>Alerts</a></li>
-                    <li class="list-group-item"><a href=""><i class="glyphicon glyphicon-indent-left"></i>Time-line</a></li>
-                    <li class="list-group-item"><a href=""><i class="glyphicon glyphicon-calendar"></i>Calendars</a></li>
-                    <li class="list-group-item"><a href=""><i class="glyphicon glyphicon-font"></i>Typography</a></li>
-                    <li class="list-group-item"><a href=""><i class="glyphicon glyphicon-minus"></i>Footers</a></li>
-                    <li class="list-group-item"><a href=""><i class="glyphicon glyphicon-list-alt"></i>Panels</a></li>
-                    <li class="list-group-item"><a href=""><i class="glyphicon glyphicon-th-list"></i>Navs</a></li>
-                    <li class="list-group-item"><a href=""><i class="glyphicon glyphicon-tint"></i>Colors</a></li>
-                    <li class="list-group-item"><a href=""><i class="glyphicon glyphicon-th"></i>Flex</a></li>
-                    <li class="list-group-item"><a href=""><i class="glyphicon glyphicon-lock"></i>Login</a></li>
-                    <li>
-                        <a href="#demo3" class="list-group-item " data-toggle="collapse">Item 3 <span class="glyphicon glyphicon-chevron-right"></span></a>
-                        <div class="collapse" id="demo3">
-                            <a href="#SubMenu1" class="list-group-item" data-toggle="collapse">Subitem 1 <span class="glyphicon glyphicon-chevron-right"></span></a>
-                            <div class="collapse list-group-submenu" id="SubMenu1">
-                                <a href="#" class="list-group-item">Subitem 1 a</a>
-                                <a href="#" class="list-group-item">Subitem 2 b</a>
-                                <a href="#SubSubMenu1" class="list-group-item" data-toggle="collapse">Subitem 3 c <span class="glyphicon glyphicon-chevron-right"></span></a>
-                                <div class="collapse list-group-submenu list-group-submenu-1" id="SubSubMenu1">
-                                    <a href="#" class="list-group-item">Sub sub item 1</a>
-                                    <a href="#" class="list-group-item">Sub sub item 2</a>
-                                </div>
-                                <a href="#" class="list-group-item">Subitem 4 d</a>
-                            </div>
-                            <a href="javascript:;" class="list-group-item">Subitem 2</a>
-                            <a href="javascript:;" class="list-group-item">Subitem 3</a>
-                        </div>
-                    </li>
-                    <li>
-                        <a href="#demo4" class="list-group-item " data-toggle="collapse">Item 4 <span class="glyphicon glyphicon-chevron-right"></span></a>
-                    <li class="collapse" id="demo4">
-                        <a href="" class="list-group-item">Subitem 1</a>
-                        <a href="" class="list-group-item">Subitem 2</a>
-                        <a href="" class="list-group-item">Subitem 3</a>
-                    </li>
-                    </li>
+                    <li class="list-group-item"><i class="glyphicon glyphicon-align-justify"></i> <b>Quick Access</b></li>
+                    @* <li class="list-group-item"><input type="text" class="form-control search-query" placeholder="Search Something"></li>*@
+                    <li class="list-group-item"><a href="@Url.Action("Index","Panel")"><i class="glyphicon glyphicon-home"></i>Dashboard </a></li>
+                    <li class="list-group-item"><a href="@Url.Action("AddUser","Panel")"><i class="glyphicon glyphicon-user"></i>Add User </a></li>
                 </ul>
             </div>
             <div class="col-xs-12 col-sm-9 content">
                 @RenderBody()
+                <div id="globalLoadingModal" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+                    <div class="loader">
+                    </div>
 
+                </div>
             </div><!-- content -->
         </div>
 
     </div>
     <!--footer-->
     <script type="text/javascript" src="~/Scripts/Site.js"></script>
-    @RenderSection("script", false)
+    <script type="text/javascript" src="~/Scripts/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/bootstrap.min.js"></script>
+    @RenderSection("scripts", false)
 </body>
 </html>

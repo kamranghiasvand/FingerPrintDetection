@@ -22,6 +22,8 @@ namespace FingerPrintDetectionModel
             return new ApplicationDbContext();
         }
         public DbSet<RealUser> RealUsers { get; set; }
+        public DbSet<SoundTrack> SoundTracks { get; set; }
+        public DbSet<Plan> Plans { get; set; }
         
     }
     public class UserClaim : IdentityUserClaim<long>
