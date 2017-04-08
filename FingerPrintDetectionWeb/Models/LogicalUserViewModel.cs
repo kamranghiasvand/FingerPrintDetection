@@ -16,7 +16,7 @@ namespace FingerPrintDetectionWeb.Models
         public string LastName { get; set; }
         public long PlanId { get; set; }
         public PlanViewModel Plan { get; set; }
-        public long SoundTrackId { get; set; }
+        public long SoundTrackId { get; set; } = -1;
         public SoundTrackViewModel SoundTrack { get; set; }
         public List<string> Errors { get; set; } = new List<string>();
 

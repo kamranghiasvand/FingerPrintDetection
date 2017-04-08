@@ -100,4 +100,7 @@
   <data name="AccountController_Login_UsernameOrPasswordIsIncorrent" xml:space="preserve">
     <value>Username or Password is incorrent.</value>
   </data>
+  <data name="PanelController_AddUser_SoundTrackNotSelected" xml:space="preserve">
+    <value>Sound Track not selected</value>
+  </data>
 </root>

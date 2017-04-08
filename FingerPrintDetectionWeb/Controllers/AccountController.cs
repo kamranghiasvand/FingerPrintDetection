@@ -64,7 +64,7 @@ namespace FingerPrintDetectionWeb.Controllers
         {
             SignInManager.AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
             //AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
-            return RedirectToAction("Login","Account");
+            return RedirectToAction("Index","Home");
         }
     }
 }

@@ -57,52 +57,60 @@
         <h3 class="panel-title">
             <a href="javascript:void(0);" class="toggle-sidebar">
                 <span class="fa fa-angle-double-left" data-toggle="offcanvas" title="Maximize Panel"></span>
-            </a> Create Logical User
+            </a> ایجاد کاربر منطقی
         </h3>
     </div>
     <div class="panel-body">
-        <div class="row">
-            <div id="AddRuleFormErrorList" class="col-lg-12 col-md-12 col-sm-12 col-xs-12 validation-summary-errors hidden" style="color: red;" data-valmsg-summary="true">
+        <form role="form" id="addUserForm" enctype="multipart/form-data" data-url="@Url.Action("AddUser", "Panel")" method="post">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 validation-summary-errors hidden" style="color: red;" data-valmsg-summary="true">
+                </div>
             </div>
-        </div>
-        <form role="form" id="addUserForm" enctype="multipart/form-data" data-url="@Url.Action("AddUser", "Panel")">
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <div class="form-group required">
-                        <label for="UserName" class="control-label">Username</label>
+                        <label for="UserName" class="control-label">نام کاربری</label>
                         <input type="text" class="form-control" id="UserName" placeholder="Username" name="UserName">
                     </div>
                     <div class="form-group required">
-                        <label for="email" class="control-label">Email address</label>
+                        <label for="email" class="control-label">پست الکترونیک</label>
                         <input type="email" class="form-control" id="email" name="Email" placeholder="Enter email">
                     </div>
                     <div class="form-group required">
-                        <label for="password" class="control-label">Password</label>
+                        <label for="password" class="control-label">گذرواژه</label>
                         <input type="password" class="form-control" id="password" name="Password" placeholder="Password">
                     </div>
                     <div class="form-group required">
-                        <label for="cfmPassword" class="control-label">Confirm Password</label>
+                        <label for="cfmPassword" class="control-label">تکرار گذرواژه</label>
                         <input type="password" class="form-control" name="cfmPassword" id="cfmPassword" placeholder="Password">
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <div class="form-group required">
-                        <label for="FirstName" class="control-label">First Name</label>
+                        <label for="FirstName" class="control-label">نام</label>
                         <input type="text" class="form-control" id="FirstName" name="FirstName" placeholder="First Name">
                     </div>
                     <div class="form-group">
-                        <label for="lastName" class="control-label">Last Name</label>
+                        <label for="lastName" class="control-label">نام خانوادگی</label>
                         <input type="text" class="form-control" id="lastName" name="LastName" placeholder="Last Name">
                     </div>
                     <div class="form-group">
-                        <label for="SoundTrack">Sound Track</label>
-                        <input type="file" id="SoundTrack" name="SoundTrack">
-                        <p class="help-block">sound track for play</p>
+                        <label class="btn btn-default btn-file">
+                            انتخاب فایل صدا <input type="file" accept="audio/mp3" id="soundFile" name="soundFile" style="display: none"/>
+                        </label>
+                        <div class="">
+                            <audio id="player" controls="controls" style="max-height: 35px; max-width: 300px;">
+                                <source id="sourceMp3" src="" type="audio/mp3" />
+                            </audio>
+                        </div>
+                       
                     </div>
+
+
                     <div class="form-group">
-                        <label for="PlanId" class="control-label">Plan</label>
+                        <label for="PlanId" class="control-label">پلن</label>
                         <select id="PlanId" name="PlanId" class="selecter_3" required data-selecter-options='{"cover":"true"}'>
-                            <option value="-1">Select Plan... </option>
+                            <option value="-1">انتخاب پلن </option>
                             @foreach (var item in GetPlanList())
                             {
                                 <option value="@item.Id">@item.Name</option>
@@ -112,88 +120,11 @@
                     </div>
                 </div>
             </div>
-            <button type="submit" class="btn btn-default">Add User</button>
+            <button type="submit" class="btn btn-default">ایجاد کاربر</button>
         </form>
 
     </div><!-- panel body -->
 </div>
 @section scripts{
-    <script>
-        $("#addUserForm").validate({
-            rules: {
-                UserName: {
-                    required: true,
-                    minlength: 6
-                },
-                password: {
-                    required: true,
-                    minlength: 6,
-                    maxlength: 10
-                },
-
-                cfmPassword: {
-                    equalTo: "#password",
-                    minlength: 6,
-                    maxlength: 10
-                },
-                FirstName: {
-                    required: true
-                },
-                PlanId: {
-                    required: true
-                }
-            },
-            messages: {
-                password: {
-                    required: "the password is required"
-
-                },
-                UserName: {
-                    required: "the username is required"
-                },
-                FirstName: {
-                    required: "the FirstName is required"
-                },
-                PlanId: { required: "Please select an item" }
-
-            }
-
-        });
-        $('#addUserForm').bind('submit', function (e) {
-            var form = $(this);
-            var url = form.data('url');
-            form.validate();
-            var isValid = form.valid();
-            if (!isValid) {
-                e.preventDefault(); //prevent the default action
-                return;
-            }
-            $('#globalLoadingModal').modal('show');
-            $.ajax({
-                type: 'POST',
-                url: url,
-                async: false,
-                data: form.serialize(),
-                success: function (data) {
-                    $('#globalLoadingModal').modal('hide');
-                    if (data.status === 'success') {
-                        form.find('.validation-summary-errors').addClass('hidden').empty();
-                        window.location.href = data.address;
-                    } else if (data.status === 'fail') {
-                        form.find('.validation-summary-errors').empty().append('<ul class="validation-summary-errors-list"></ul>').removeClass('hidden');
-                        for (var cnt = 0; cnt < data.errors.length; cnt++) {
-                            form.find('.validation-summary-errors-list').append('<li>' + data.errors[cnt] + '</li>');
-                        }
-
-                    }
-                    // $("#answers").html(response);
-                },
-                error: function (errors) {
-
-                    $('#globalLoadingModal').modal('hide');
-                }
-            });
-        });
-
-    </script>
+    <script src="~/Scripts/Views/Panel/AddUser.js"></script>
 }

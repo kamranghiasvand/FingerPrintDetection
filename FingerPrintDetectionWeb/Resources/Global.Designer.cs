@@ -68,5 +68,14 @@ namespace FingerPrintDetectionWeb.Resources {
                 return ResourceManager.GetString("AccountController_Login_UsernameOrPasswordIsIncorrent", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sound Track not selected.
+        /// </summary>
+        internal static string PanelController_AddUser_SoundTrackNotSelected {
+            get {
+                return ResourceManager.GetString("PanelController_AddUser_SoundTrackNotSelected", resourceCulture);
+            }
+        }
     }
 }
