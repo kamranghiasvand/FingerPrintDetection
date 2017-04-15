@@ -13,7 +13,7 @@ namespace FingerPrintDetectionWeb.Controllers
 
         public ApplicationUserManager UserManager => HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
         public ApplicationDbContext DbContext => HttpContext.GetOwinContext().Get<ApplicationDbContext>();
-        public LogicalUser GetCurrentUser() => UserManager.FindById(User.Identity.GetUserId<long>());
+        public LoginUser GetCurrentUser() => UserManager.FindById(User.Identity.GetUserId<long>());
 
         private void AddErrors(IdentityResult result)
         {

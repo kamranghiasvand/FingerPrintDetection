@@ -11,7 +11,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace FingerPrintDetectionModel
 {
-    public class ApplicationDbContext : IdentityDbContext<LogicalUser, Role, long, UserLogin, UserRole, UserClaim>
+    public class ApplicationDbContext : IdentityDbContext<LoginUser, Role, long, UserLogin, UserRole, UserClaim>
     {
         public ApplicationDbContext() : base("DefaultConnection")
         {
@@ -23,6 +23,7 @@ namespace FingerPrintDetectionModel
         }
         public DbSet<RealUser> RealUsers { get; set; }
         public DbSet<SoundTrack> SoundTracks { get; set; }
+        public DbSet<LogicalUser> LogicalUsers { get; set; }
         public DbSet<Plan> Plans { get; set; }
         
     }
@@ -35,7 +36,7 @@ namespace FingerPrintDetectionModel
     public class UserRole : IdentityUserRole<long>
     {
     }
-    public class UserStore : UserStore<LogicalUser, Role, long, UserLogin, UserRole, UserClaim>
+    public class UserStore : UserStore<LoginUser, Role, long, UserLogin, UserRole, UserClaim>
     {
         public UserStore(ApplicationDbContext context) : base(context)
         {

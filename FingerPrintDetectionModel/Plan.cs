@@ -16,7 +16,7 @@ namespace FingerPrintDetectionModel
         public string Description { get; set; }
         public int RepeatNumber { get; set; }
         public int MaxNumberOfUse { get; set; }
-        public virtual ICollection<LogicalUser> Users { get; set; } = new List<LogicalUser>();
+        public virtual ICollection<LoginUser> Users { get; set; } = new List<LoginUser>();
 
     }
 }

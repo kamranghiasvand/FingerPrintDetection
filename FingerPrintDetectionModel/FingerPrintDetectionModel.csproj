@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="ApplicationDbContext.cs" />
     <Compile Include="LogicalUser.cs" />
+    <Compile Include="LoginUser.cs" />
     <Compile Include="Migrations\201703280636352_1st.cs" />
     <Compile Include="Migrations\201703280636352_1st.Designer.cs">
       <DependentUpon>201703280636352_1st.cs</DependentUpon>

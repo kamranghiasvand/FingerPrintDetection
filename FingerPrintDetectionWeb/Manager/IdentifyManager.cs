@@ -31,9 +31,9 @@ namespace FingerPrintDetectionWeb.Manager
     }
 
     // Configure the application user manager used in this application. UserManager is defined in ASP.NET Identity and is used by the application.
-    public class ApplicationUserManager : UserManager<LogicalUser, long>
+    public class ApplicationUserManager : UserManager<LoginUser, long>
     {
-        public ApplicationUserManager(IUserStore<LogicalUser, long> store)
+        public ApplicationUserManager(IUserStore<LoginUser, long> store)
             : base(store)
         {
         }
@@ -42,7 +42,7 @@ namespace FingerPrintDetectionWeb.Manager
         {
             var manager = new ApplicationUserManager(new UserStore(context.Get<ApplicationDbContext>()));
             // Configure validation logic for usernames
-            manager.UserValidator = new UserValidator<LogicalUser, long>(manager)
+            manager.UserValidator = new UserValidator<LoginUser, long>(manager)
             {
                 AllowOnlyAlphanumericUserNames = false,
                 RequireUniqueEmail = true
@@ -65,11 +65,11 @@ namespace FingerPrintDetectionWeb.Manager
 
             // Register two factor authentication providers. This application uses Phone and Emails as a step of receiving a code for verifying the user
             // You can write your own provider and plug it in here.
-            manager.RegisterTwoFactorProvider("Phone Code", new PhoneNumberTokenProvider<LogicalUser, long>
+            manager.RegisterTwoFactorProvider("Phone Code", new PhoneNumberTokenProvider<LoginUser, long>
             {
                 MessageFormat = "Your security code is {0}"
             });
-            manager.RegisterTwoFactorProvider("Email Code", new EmailTokenProvider<LogicalUser, long>
+            manager.RegisterTwoFactorProvider("Email Code", new EmailTokenProvider<LoginUser, long>
             {
                 Subject = "Security Code",
                 BodyFormat = "Your security code is {0}"
@@ -79,20 +79,20 @@ namespace FingerPrintDetectionWeb.Manager
             if (dataProtectionProvider != null)
             {
                 manager.UserTokenProvider =
-                    new DataProtectorTokenProvider<LogicalUser, long>(dataProtectionProvider.Create("ASP.NET Identity"));
+                    new DataProtectorTokenProvider<LoginUser, long>(dataProtectionProvider.Create("ASP.NET Identity"));
             }
             return manager;
         }
     }
     // Configure the application sign-in manager which is used in this application.
-    public class ApplicationSignInManager : SignInManager<LogicalUser, long>
+    public class ApplicationSignInManager : SignInManager<LoginUser, long>
     {
         public ApplicationSignInManager(ApplicationUserManager userManager, IAuthenticationManager authenticationManager)
             : base(userManager, authenticationManager)
         {
         }
 
-        public override Task<ClaimsIdentity> CreateUserIdentityAsync(LogicalUser user)
+        public override Task<ClaimsIdentity> CreateUserIdentityAsync(LoginUser user)
         {
             return user.GenerateUserIdentityAsync((ApplicationUserManager)UserManager);
         }

@@ -38,20 +38,19 @@ namespace FingerPrintDetectionWeb.Controllers
             {
                 if (paramView == null)
                     paramView = new DatatablesParam();
-                recordsTotal = DbContext.Users.Count(m => !m.Deleted);
+                recordsTotal = DbContext.LogicalUsers.Count(m => !m.Deleted);
                 var users = string.IsNullOrEmpty(paramView.customSearch) ?
-                   DbContext.Users.Where(m => !m.Deleted).OrderBy(m => m.Id) :
-                   DbContext.Users.Where(m => !m.Deleted && (m.FirstName.Contains(paramView.customSearch) || m.LastName.Contains(paramView.customSearch))).OrderBy(m => m.Id);
+                   DbContext.LogicalUsers.Where(m => !m.Deleted).OrderBy(m => m.Id) :
+                   DbContext.LogicalUsers.Where(m => !m.Deleted && (m.FirstName.Contains(paramView.customSearch) || m.LastName.Contains(paramView.customSearch))).OrderBy(m => m.Id);
                 recordsFiltered = users.Count();
+             
                 foreach (var user in users.Skip(paramView.start).Take(paramView.length))
                 {
                     var row = new Dictionary<string, object>
                      {
                          {"Id", user.Id},
                          {"FirstName", user.FirstName},
-                         {"LastName", user.LastName},
-                         {"Email", user.Email},
-                         {"UserName", user.UserName},
+                         {"LastName", user.LastName}
                      };
                     data.Add(row);
                 }
@@ -94,11 +93,9 @@ namespace FingerPrintDetectionWeb.Controllers
             }
             var plan = DbContext.Plans.First(m => m.Id == model.PlanId);
             var soundTrack = DbContext.SoundTracks.First(m => m.Id == model.SoundTrackId);
-            var user = new LogicalUser
+            var user = new LoginUser
             {
                 Email = model.Email,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
                 Plan = plan,
                 Sound = soundTrack,
                 UserName = model.UserName

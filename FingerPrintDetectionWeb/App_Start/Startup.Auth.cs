@@ -29,7 +29,7 @@ namespace FingerPrintDetectionWeb
                 Provider = new CookieAuthenticationProvider
                 {
                     OnValidateIdentity =
-                        SecurityStampValidator.OnValidateIdentity<ApplicationUserManager, LogicalUser, long>
+                        SecurityStampValidator.OnValidateIdentity<ApplicationUserManager, LoginUser, long>
                         (TimeSpan.FromMinutes(30), (manager, user) => user.GenerateUserIdentityAsync(manager), id => id.GetUserId<long>())
                 }
             });            
