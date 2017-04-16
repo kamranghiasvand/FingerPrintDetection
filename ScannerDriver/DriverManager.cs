@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using Suprema;
@@ -20,7 +21,7 @@ namespace ScannerDriver
             manager.Init();
         }
 
-        public static DriverManager GetManager()
+        public static DriverManager Create()
         {
             if (instance != null) return instance;
             instance = new DriverManager();
@@ -30,17 +31,49 @@ namespace ScannerDriver
 
         public void Start()
         {
-
+            if (IsRunning)
+                return;
+            manager.Init();
             if (manager.Scanners != null)
                 for (var i = 0; i < manager.Scanners.Count; ++i)
                 {
-                    var scanner = new ScannerWrapper(manager.Scanners[i], this);
-                    Scanners.Add(scanner.Id,scanner);
+                    try
+                    {
+                        var scanner = new ScannerWrapper(manager.Scanners[i], this);
+                        if (!Scanners.Keys.Contains(scanner.Id))
+                            Scanners.Add(scanner.Id, scanner);
+                        string mess;
+                        scanner.StartCapturing(out mess);
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
                 }
             IsRunning = true;
         }
 
-        public bool StartCapturing(string scannerId,out string error)
+        public void Stop()
+        {
+            IsRunning = false;
+            if (manager.Scanners != null)
+                for (var i = 0; i < manager.Scanners.Count; ++i)
+                {
+                    try
+                    {
+                        var scanner = new ScannerWrapper(manager.Scanners[i], this);
+                        string mess;
+                        scanner.StopCapturing(out mess);
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+                }
+            manager.Uninit();
+        }
+
+        public bool StartCapturing(string scannerId, out string error)
         {
             if (string.IsNullOrEmpty(scannerId))
             {
@@ -72,6 +105,20 @@ namespace ScannerDriver
             return Scanners.First().Value;
         }
 
+        public List<ScannerState> GetScannersState()
+        {
+            return Scanners.Select(item => new ScannerState
+            {
+                Id = item.Key,
+                IsCapturing = item.Value.IsCapturing,
+                IsSensorOn = item.Value.IsSensorOn,
+                ImageQuality = item.Value.ImageQuality,
+                Timeout = item.Value.Timeout
+            }).ToList();
+
+        }
+
+
 
         protected override void Dispose(bool isDisposing)
         {
@@ -89,5 +136,16 @@ namespace ScannerDriver
         private void Manager_ScannerEvent(object sender, UFScannerManagerScannerEventArgs e)
         {
         }
+    }
+
+    public class ScannerState
+    {
+        public String Id { get; set; }
+        public bool IsCapturing { get; set; }
+        public bool IsSensorOn { get; set; }
+        public int ImageQuality { get; set; }
+        public int Timeout { get; set; }
+
+
     }
 }

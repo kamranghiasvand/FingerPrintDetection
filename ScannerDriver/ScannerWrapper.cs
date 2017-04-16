@@ -12,11 +12,12 @@ namespace ScannerDriver
         const int MaxTemplateSize = 1024;
         public event CaptureEventHandler CaptureEvent;
         public int ImageQuality { get; set; } = 40;
+
         public int Timeout
         {
             get { return scanner.Timeout; }
             set { scanner.Timeout = value; }
-        }
+        } 
 
         public bool IsCapturing => scanner.IsCapturing;
         public string Id => scanner.CID;
@@ -32,6 +33,7 @@ namespace ScannerDriver
             this.manager = manager;
             this.scanner = scanner;
             this.scanner.CaptureEvent += Scanner_CaptureEvent;
+            Timeout = -1;
         }
 
 

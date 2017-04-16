@@ -2,41 +2,28 @@
 
 
     $("#addUserForm").validate({
+        errorClass: "my-error-class",
+        validClass: "my-valid-class",
         rules: {
-            UserName: {
-                required: true,
-                minlength: 6
-            },
-            password: {
-                required: true,
-                minlength: 6,
-                maxlength: 10
-            },
-
-            cfmPassword: {
-                equalTo: "#password",
-                minlength: 6,
-                maxlength: 10
-            },
             FirstName: {
                 required: true
+            },
+            LastName: {
+                required:true
             },
             PlanId: {
                 required: true
             }
         },
         messages: {
-            password: {
-                required: "the password is required"
-
-            },
-            UserName: {
-                required: "the username is required"
-            },
+          
             FirstName: {
-                required: "the FirstName is required"
+                required: "نام کاربر را وارد کنید"
             },
-            PlanId: { required: "Please select an item" }
+            LastName: {
+                required:"نام خانوادگی کاربر را وارد کنید"
+            },
+            PlanId: { required: " پلن پخش صدا را مشخص کتید" }
 
         }
 

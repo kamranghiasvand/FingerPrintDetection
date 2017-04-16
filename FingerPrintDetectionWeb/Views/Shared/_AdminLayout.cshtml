@@ -20,6 +20,12 @@
     <link href="~/Content/DataTables/css/responsive.dataTables.min.css" rel="stylesheet" />
     <link href="~/Content/DataTables/css/buttons.dataTables.css" rel="stylesheet" />
     <link href="~/Content/DataTables/css/buttons.bootstrap.css" rel="stylesheet" />
+
+    <!--bootstrap date time picker-->
+    @*<link href="~/Content/bootstrap-datetimepicker.min.css" rel="stylesheet"/>*@
+    <link href="~/Content/bootstrap-datepicker.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-timepicker.css" rel="stylesheet" />
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -71,7 +77,16 @@
                             <a class="@(cn== nameof(PanelController)&& an== nameof(PanelController.UserList) ? "active" : "")" href="@Url.Action("UserList", "Panel")"><i class="fa fa-user fa-fw"></i>لیست کاربران</a>
                         </li>
                         <li>
-                            <a class="@(cn== nameof(PanelController)&& an== nameof(PanelController.AddUser) ? "active" : "")" href="@Url.Action("AddUser", "Panel")"><i class="fa fa-user fa-fw"></i>ایجاد کاربر جدید</a>
+                            <a class="@(cn == nameof(PanelController) && an == nameof(PanelController.AddUser) ? "active" : "")" href="@Url.Action("AddUser", "Panel")"><i class="fa fa-user fa-fw"></i>ایجاد کاربر جدید</a>
+                        </li>
+                        <li>
+                            <a class="@(cn == nameof(PanelController) && an == nameof(PanelController.PlanList) ? "active" : "")" href="@Url.Action("PlanList", "Panel")"><i class="fa fa-user fa-fw"></i>لیست پلن ها</a>
+                        </li>
+                        <li>
+                            <a class="@(cn == nameof(PanelController) && an == nameof(PanelController.AddPlan) ? "active" : "")" href="@Url.Action("AddPlan", "Panel")"><i class="fa fa-user fa-fw"></i>ایجاد پلن جدید</a>
+                        </li>
+                        <li>
+                            <a class="@(cn== nameof(PanelController)&& an== nameof(PanelController.ScannerManager) ? "active" : "")" href="@Url.Action("ScannerManager", "Panel")"><i class="fa fa-user fa-fw"></i>لیست اسکنرها</a>
                         </li>
                     </ul>
                 </div>
@@ -101,6 +116,10 @@
     <script src="~/Scripts/DataTables/dataTables.bootstrap.js"></script>
     <script src="~/Scripts/DataTables/dataTables.buttons.js"></script>
     <script src="~/Scripts/DataTables/buttons.bootstrap.js"></script>
+
+    <!--bootstrap date time picker-->
+    <script src="~/Scripts/datepicker/bootstrap-datepicker.js"></script>
+    <script src="~/Scripts/bootstrap-timepicker.js"></script>
 
     @RenderSection("scripts", false)
 </body>

@@ -12,13 +12,6 @@ namespace FingerPrintDetectionModel
 {
     public class LoginUser:IdentityUser<long, UserLogin, UserRole, UserClaim>
     {
-        public virtual SoundTrack Sound { get; set; }
-        public virtual Plan Plan { get; set; }
-        public virtual ICollection<RealUser> RealUsers { get; set; } = new List<RealUser>();
-
-        public LoginUser()
-        {
-        }
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<LoginUser, long> manager)
         {
             // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType

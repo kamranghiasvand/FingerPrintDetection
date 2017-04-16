@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace FingerPrintDetectionWeb.Models
 {
@@ -20,7 +16,7 @@ namespace FingerPrintDetectionWeb.Models
         public bool IsValid()
         {
             if (PlanId < 0)
-                Errors.Add("Plan is not selected");
+                Errors.Add("پلنی انتخاب نشده است");
             return Errors.Count <= 0;
 
         }

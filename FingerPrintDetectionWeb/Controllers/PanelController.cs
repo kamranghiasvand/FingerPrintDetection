@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Mvc;
 using FingerPrintDetectionModel;
 using FingerPrintDetectionWeb.Models;
+using FingerPrintDetectionWeb.Resources;
 using NAudio.Wave;
 
 namespace FingerPrintDetectionWeb.Controllers
@@ -19,11 +20,12 @@ namespace FingerPrintDetectionWeb.Controllers
             return View();
         }
 
+
+        #region User Management
         public ActionResult UserList()
         {
             return View();
         }
-        #region User Management
         public ActionResult AddUser()
         {
             return View();
@@ -43,7 +45,7 @@ namespace FingerPrintDetectionWeb.Controllers
                    DbContext.LogicalUsers.Where(m => !m.Deleted).OrderBy(m => m.Id) :
                    DbContext.LogicalUsers.Where(m => !m.Deleted && (m.FirstName.Contains(paramView.customSearch) || m.LastName.Contains(paramView.customSearch))).OrderBy(m => m.Id);
                 recordsFiltered = users.Count();
-             
+
                 foreach (var user in users.Skip(paramView.start).Take(paramView.length))
                 {
                     var row = new Dictionary<string, object>
@@ -59,53 +61,252 @@ namespace FingerPrintDetectionWeb.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> AddUser(LogicalUserViewModel model, HttpPostedFileBase soundFile)
+        public JsonResult AddUser(LogicalUserViewModel model, HttpPostedFileBase soundFile)
         {
-            if (!model.IsValid())
+            try
             {
-                var res = new { status = "fail", errors = new List<string>() };
-                foreach (var err in model.Errors.Take(3))
-                    res.errors.Add(err);
-                return Json(res);
-            }
-            if (model.SoundTrackId < 0)
-            {
-                if (soundFile == null)
+                if (!model.IsValid())
                 {
-                    var res = new { status = "fail", errors = new List<string> { Resources.Global.PanelController_AddUser_SoundTrackNotSelected } };
+                    var res = new { status = "fail", errors = new List<string>() };
+                    foreach (var err in model.Errors.Take(3))
+                        res.errors.Add(err);
                     return Json(res);
                 }
-                var fileName = Path.GetFileName(soundFile.FileName);
-                var path = Path.Combine(Server.MapPath("~/App_Data/uploads"), fileName);
-                soundFile.SaveAs(path);
-
-                var reader = new Mp3FileReader(path);
-                var duration = reader.TotalTime;
-                DbContext.SoundTracks.Add(new SoundTrack
+                if (model.SoundTrackId < 0)
                 {
-                    Duration = duration.Ticks,
-                    Name = fileName,
-                    Type = SoundTrackType.Mp3,
-                    Uri = new Uri(path).ToString()
-                });
+                    if (soundFile == null)
+                    {
+                        var res =
+                            new
+                            {
+                                status = "fail",
+                                errors = new List<string> { Global.PanelController_AddUser_SoundTrackNotSelected }
+                            };
+                        return Json(res);
+                    }
+                    var fileName = Path.GetFileName(soundFile.FileName);
+                    if (fileName == null)
+                    {
+                        var res =
+                            new
+                            {
+                                status = "fail",
+                                errors = new List<string> { Global.PanelController_AddUser_SoundTrackNotSelected }
+                            };
+                        return Json(res);
+                    }
+                    var path = Server.MapPath("~/App_Data/uploads/");
+                    if (!System.IO.Directory.Exists(path))
+                        Directory.CreateDirectory(path);
+                    path = Path.Combine(path, fileName);
+                    try
+                    {
+                        if (System.IO.File.Exists(path))
+                            System.IO.File.Delete(path);
+                        soundFile.SaveAs(path);
+                    }
+                    catch (Exception ex)
+                    {
+                        var res =
+                            new
+                            {
+                                status = "fail",
+                                errors = new List<string> { Global.PanelController_AddUser_FailToSaveSoundTrack }
+                            };
+                        return Json(res);
+                    }
+
+                    var reader = new Mp3FileReader(path);
+                    var duration = reader.TotalTime;
+                    DbContext.SoundTracks.Add(new SoundTrack
+                    {
+                        Duration = duration.Ticks,
+                        Name = fileName,
+                        Type = SoundTrackType.Mp3,
+                        Uri = new Uri(path).ToString()
+                    });
+                    DbContext.SaveChanges();
+                    path = (new Uri(path).ToString());
+                    model.SoundTrackId = DbContext.SoundTracks.First(m => m.Uri == path).Id;
+                }
+                var plan = DbContext.Plans.First(m => m.Id == model.PlanId);
+                var soundTrack = DbContext.SoundTracks.First(m => m.Id == model.SoundTrackId);
+                var user = new LogicalUser
+                {
+                    Plan = plan,
+                    Sound = soundTrack,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName
+                };
+                DbContext.LogicalUsers.Add(user);
                 DbContext.SaveChanges();
-                model.SoundTrackId = DbContext.SoundTracks.First(m => m.Uri == (new Uri(path).ToString())).Id;
             }
-            var plan = DbContext.Plans.First(m => m.Id == model.PlanId);
-            var soundTrack = DbContext.SoundTracks.First(m => m.Id == model.SoundTrackId);
-            var user = new LoginUser
+            catch (Exception ex)
             {
-                Email = model.Email,
-                Plan = plan,
-                Sound = soundTrack,
-                UserName = model.UserName
-            };
-            DbContext.Users.Add(user);
-            DbContext.SaveChanges();
-            await UserManager.AddToRoleAsync(user.Id, "User");
-            return Json( new { status = "success", address=Url.Action("UserList","Panel") }) ;
+                var res = new { status = "fail", errors = new List<string> { "خطایی در سرور رخ داده است" } };
+                return Json(res);
+            }
+            return Json(new { status = "success", address = Url.Action("UserList", "Panel") });
         }
         #endregion
 
+        #region User Management
+        public ActionResult PlanList()
+        {
+            return View();
+        }
+        public ActionResult AddPlan()
+        {
+            return View();
+        }
+        public async Task<JsonResult> GetPlansListAsync(DatatablesParam paramView)
+        {
+
+            var data = new List<object>();
+            double recordsTotal = 0, recordsFiltered = 0;
+
+            await Task.Run(() =>
+            {
+                if (paramView == null)
+                    paramView = new DatatablesParam();
+                recordsTotal = DbContext.Plans.Count(m => !m.Deleted);
+                var plans = string.IsNullOrEmpty(paramView.customSearch) ?
+                   DbContext.Plans.Where(m => !m.Deleted).OrderBy(m => m.Id) :
+                   DbContext.Plans.Where(m => !m.Deleted && (m.Name.Contains(paramView.customSearch))).OrderBy(m => m.Id);
+                recordsFiltered = plans.Count();
+
+                foreach (var plan in plans.Skip(paramView.start).Take(paramView.length))
+                {
+                    var row = new Dictionary<string, object>
+                    {
+                        {"Id", plan.Id},
+                        {"Name", plan.Name},
+                        {"RepeatNumber", plan.RepeatNumber},
+                        {"MaxNumberOfUse", plan.MaxNumberOfUse},
+                        {"Description", plan.Description},
+                        {"Users", new List<object>()}
+                    };
+                    if (plan.Users != null)
+                        foreach (var user in plan.Users)
+                        {
+                            ((List<object>)row["Users"]).Add(new { user.FirstName, user.LastName });
+                        }
+                    data.Add(row);
+                }
+            });
+            return Json(new { paramView.draw, recordsTotal, recordsFiltered, data }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult AddPlan(PlanViewModel model)
+        {
+            try
+            {
+                if (!model.IsValid())
+                {
+                    var res = new { status = "fail", errors = new List<string>() };
+                    foreach (var err in model.Errors.Take(3))
+                        res.errors.Add(err);
+                    return Json(res);
+                }
+                var plan = new Plan
+                {
+                    Description = model.Description,
+                    MaxNumberOfUse = model.MaxUserCount,
+                    Name = model.Name,
+                    RepeatNumber = model.RepeatNumber,
+                    StartTime = model.StartTime,
+                    EndTime = model.EndTime
+                };
+                DbContext.Plans.Add(plan);
+                DbContext.SaveChanges();
+
+                return Json(new { status = "success", address = Url.Action("PlanList", "Panel") });
+            }
+            catch (Exception ex)
+            {
+                var res = new { status = "fail", errors = new List<string> { "خطایی در سرور رخ داده است" } };
+                return Json(res);
+            }
+        }
+        #endregion
+
+        #region Scanner Manager
+
+        public ActionResult ScannerManager()
+        {
+            return View();
+        }
+
+        public async Task<JsonResult> GetScannersListAsync(DatatablesParam paramView)
+        {
+            try
+            {
+                var data = new List<object>();
+                double recordsTotal = 0, recordsFiltered = 0;
+
+                await Task.Run(() =>
+                {
+                    var total = FingerPrintManager.GetScannersState();
+                    if (paramView == null)
+                        paramView = new DatatablesParam();
+
+                    recordsTotal = total.Count;
+                    var filtered = string.IsNullOrEmpty(paramView.customSearch)
+                        ? total.OrderBy(m => m.Id)
+                        : total.Where(m => (m.Id.Contains(paramView.customSearch))).OrderBy(m => m.Id);
+                    recordsFiltered = filtered.Count();
+
+                    data.AddRange(
+                        filtered.Skip(paramView.start)
+                            .Take(paramView.length)
+                            .Select(state => new Dictionary<string, object>
+                            {
+                                {"Id", state.Id},
+                                {"ImageQuality ", state.ImageQuality},
+                                {"IsCapturing", state.IsCapturing},
+                                {"IsSensorOn", state.IsSensorOn},
+                                {"Timeout", state.Timeout}
+                            }));
+                });
+                return Json(new {paramView.draw, recordsTotal, recordsFiltered, data}, JsonRequestBehavior.AllowGet);
+            }
+            catch
+            {
+                var res = new { status = "fail", errors = new List<string> { "خطایی در سرور رخ داده است" } };
+                return Json(res);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult StopScannerManager()
+        {
+            try
+            {
+                FingerPrintManager.Stop();
+                return Json(new {status = "success", address = Url.Action("ScannerManager", "Panel")});
+            }
+            catch
+            {
+                var res = new { status = "fail", errors = new List<string> { "خطایی در سرور رخ داده است" } };
+                return Json(res);
+            }
+        }
+        [HttpPost]
+        public JsonResult StartScannerManager()
+        {
+            try
+            {
+                FingerPrintManager.Start();
+                return Json(new { status = "success", address = Url.Action("ScannerManager", "Panel") });
+            }
+            catch
+            {
+                var res = new { status = "fail", errors = new List<string> { "خطایی در سرور رخ داده است" } };
+                return Json(res);
+            }
+        }
+        #endregion
     }
+
 }

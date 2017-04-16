@@ -103,4 +103,7 @@
   <data name="PanelController_AddUser_SoundTrackNotSelected" xml:space="preserve">
     <value>Sound Track not selected</value>
   </data>
+  <data name="PanelController_AddUser_FailToSaveSoundTrack" xml:space="preserve">
+    <value>Fail To Save Sound Track</value>
+  </data>
 </root>

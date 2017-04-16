@@ -8,5 +8,12 @@ namespace ScannerDriver
 {
     public interface IScannerManager
     {
+        void Start();
+        void Stop();
+        bool StartCapturing(string scannerId, out string error);
+        ScannerWrapper GetScanner(string scannerId, out string error);
+        ScannerWrapper GetFirstScanner();
+        List<ScannerState> GetScannersState();
+
     }
 }

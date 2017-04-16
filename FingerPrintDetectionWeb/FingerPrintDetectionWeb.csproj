@@ -134,6 +134,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
@@ -230,8 +231,8 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\bootstrap-rtl.css" />
-    <Content Include="Content\bootstrap-rtl.min.css" />
+    <Content Include="Content\bootstrap-datepicker.css" />
+    <Content Include="Content\bootstrap-timepicker.css" />
     <Content Include="Content\DataTables\css\autoFill.bootstrap.css" />
     <Content Include="Content\DataTables\css\autoFill.bootstrap.min.css" />
     <Content Include="Content\DataTables\css\autoFill.bootstrap4.css" />
@@ -382,6 +383,9 @@
     <Content Include="Content\timeline.css" />
     <Content Include="css\bootstrap.min.css" />
     <Content Include="css\font-awesome\font-awesome.min.css" />
+    <Content Include="css\fonts\fontawesome-webfont-v=4.2.0.svg" />
+    <Content Include="css\fonts\fontawesome-webfont.svg" />
+    <Content Include="css\fonts\glyphicons-halflings-regular.svg" />
     <Content Include="css\plugins\dataTables.bootstrap.css" />
     <Content Include="css\plugins\metisMenu\metisMenu.css" />
     <Content Include="css\plugins\metisMenu\metisMenu.min.css" />
@@ -393,7 +397,6 @@
     <Content Include="extras\image-samples\tables.png" />
     <Content Include="extras\image-samples\typography.png" />
     <Content Include="favicon.ico" />
-    <Content Include="fonts\angularicons.svg" />
     <Content Include="fonts\fontawesome-webfont-v=4.2.0.svg" />
     <Content Include="fonts\fontawesome-webfont.svg" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
@@ -434,11 +437,23 @@
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="fonts\angularicons.eot" />
-    <Content Include="fonts\angularicons.ttf" />
-    <Content Include="fonts\angularicons.woff" />
     <Content Include="img\check_flat\default.psd" />
-    <Content Include="fonts\IranianSerifWeb-Regular.woff" />
+    <Content Include="Content\DataTables\css\semanticui.scss" />
+    <Content Include="Content\DataTables\css\mixins.scss" />
+    <Content Include="Content\DataTables\css\common.scss" />
+    <Content Include="css\fonts\fontawesome-webfont-.eot" />
+    <Content Include="css\fonts\fontawesome-webfont-v=4.2.0.eot" />
+    <Content Include="css\fonts\fontawesome-webfont-v=4.2.0.ttf" />
+    <Content Include="css\fonts\fontawesome-webfont-v=4.2.0.woff" />
+    <Content Include="css\fonts\fontawesome-webfont.eot" />
+    <Content Include="css\fonts\fontawesome-webfont.ttf" />
+    <Content Include="css\fonts\fontawesome-webfont.woff" />
+    <Content Include="css\fonts\FontAwesome.otf" />
+    <Content Include="css\fonts\glyphicons-halflings-regular-.eot" />
+    <Content Include="css\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="css\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="css\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="css\fonts\glyphicons-halflings-regular.woff2" />
     <Content Include="fonts\fontawesome-webfont-.eot" />
     <Content Include="fonts\fontawesome-webfont-v=4.2.0.eot" />
     <Content Include="fonts\fontawesome-webfont-v=4.2.0.ttf" />
@@ -452,9 +467,6 @@
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />
-    <Content Include="Content\DataTables\css\semanticui.scss" />
-    <Content Include="Content\DataTables\css\mixins.scss" />
-    <Content Include="Content\DataTables\css\common.scss" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="js\bootstrap.min.js" />
     <Content Include="js\bootstrap\bootstrap.min.js" />
@@ -473,8 +485,8 @@
     <Content Include="js\raphael\raphael.min.js" />
     <Content Include="js\sb-admin-2.js" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
-    <Content Include="Scripts\bootstrap-rtl.js" />
-    <Content Include="Scripts\bootstrap-rtl.min.js" />
+    <Content Include="Scripts\bootstrap-timepicker.js" />
+    <Content Include="Scripts\bootstrap-timepicker.min.js" />
     <Content Include="Scripts\DataTables\autoFill.bootstrap.js" />
     <Content Include="Scripts\DataTables\autoFill.bootstrap.min.js" />
     <Content Include="Scripts\DataTables\autoFill.bootstrap4.js" />
@@ -549,6 +561,58 @@
     <Content Include="Scripts\DataTables\responsive.jqueryui.min.js" />
     <Content Include="Scripts\DataTables\responsive.semanticui.js" />
     <Content Include="Scripts\DataTables\responsive.semanticui.min.js" />
+    <Content Include="Scripts\datepicker\bootstrap-datepicker.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.ar.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.az.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.bg.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.ca.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.cs.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.cy.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.da.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.de.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.el.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.es.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.et.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.fa.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.fi.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.fr.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.gl.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.he.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.hr.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.hu.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.id.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.is.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.it.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.ja.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.ka.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.kk.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.kr.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.lt.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.lv.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.mk.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.ms.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.nb.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.nl-BE.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.nl.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.no.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.pl.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.pt-BR.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.pt.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.ro.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.rs-latin.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.rs.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.ru.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.sk.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.sl.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.sq.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.sv.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.sw.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.th.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.tr.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.ua.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.vi.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.zh-CN.js" />
+    <Content Include="Scripts\datepicker\locales\bootstrap-datepicker.zh-TW.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
     <Content Include="Scripts\jquery-2.1.1.min.map" />
@@ -564,7 +628,10 @@
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\sb-admin-2.js" />
     <Content Include="Scripts\Site.js" />
+    <Content Include="Scripts\Views\Panel\AddPlan.js" />
     <Content Include="Scripts\Views\Panel\AddUser.js" />
+    <Content Include="Scripts\Views\Panel\PlanList.js" />
+    <Content Include="Scripts\Views\Panel\ScannerManager.js" />
     <Content Include="Scripts\Views\Panel\UserList.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="Web.config" />
@@ -585,6 +652,9 @@
     <Content Include="Views\Panel\Index.cshtml" />
     <Content Include="Views\Panel\UserList.cshtml" />
     <Content Include="Views\Panel\AddUser.cshtml" />
+    <Content Include="Views\Panel\PlanList.cshtml" />
+    <Content Include="Views\Panel\AddPlan.cshtml" />
+    <Content Include="Views\Panel\ScannerManager.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -599,12 +669,17 @@
       <Project>{772a4bf9-0039-43f0-9167-581bcd1a7a58}</Project>
       <Name>FingerPrintDetectionModel</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ScannerDriver\ScannerDriver.csproj">
+      <Project>{7007babc-737d-40f1-a7aa-b2b5c5ee1077}</Project>
+      <Name>ScannerDriver</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Global.fa.resx" />
     <EmbeddedResource Include="Resources\Global.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Global.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
@@ -678,6 +753,13 @@
     <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.2.0.1\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.2.0.1\build\Microsoft.Net.Compilers.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.3\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.3\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>xcopy "$(SolutionDir)ScannerDriver\Dlls" $(TargetDir) /s /e /Y</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -13,7 +13,7 @@ namespace ScannerDriver
         {
             string error = "";
             byte[] template;
-            var manager = DriverManager.GetManager();
+            var manager = DriverManager.Create();
             manager.Start();
             var scanner = manager.GetFirstScanner();
             scanner.CaptureEvent += Scanner_CaptureEvent;

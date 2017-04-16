@@ -70,6 +70,15 @@ namespace FingerPrintDetectionWeb.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Fail To Save Sound Track.
+        /// </summary>
+        internal static string PanelController_AddUser_FailToSaveSoundTrack {
+            get {
+                return ResourceManager.GetString("PanelController_AddUser_FailToSaveSoundTrack", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sound Track not selected.
         /// </summary>
         internal static string PanelController_AddUser_SoundTrackNotSelected {

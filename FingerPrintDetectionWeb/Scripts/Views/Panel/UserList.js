@@ -50,34 +50,10 @@
                 visible: true,
                 sortable: true,
                 searchable: true,
-                render: function (data, type, row) {
+                render: function(data, type, row) {
                     return row.LastName;
                 }
-            },
-            {
-                name: "Email",
-                title: "ایمیل",
-                className: "all",
-                visible: true,
-                sortable: true,
-                searchable: true,
-                render: function (data, type, row) {
-                    return row.Email;
-                }
-            },
-             {
-                 name: "UserName",
-                 title: "نام کاربری",
-                 className: "all",
-                 visible: true,
-                 sortable: true,
-                 searchable: true,
-                 render: function (data, type, row) {
-                     return row.UserName;
-                 }
-             }
-            
-           
+            }
         ]
     };
     var userTables = $('#UserdataTables').DataTable(settings);
