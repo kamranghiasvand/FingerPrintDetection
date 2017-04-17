@@ -1,6 +1,6 @@
-﻿using Microsoft.Owin;
+﻿using FingerPrintDetectionWeb.Manager;
+using Microsoft.Owin;
 using Owin;
-using ScannerDriver;
 
 [assembly: OwinStartupAttribute(typeof(FingerPrintDetectionWeb.Startup))]
 namespace FingerPrintDetectionWeb
@@ -10,7 +10,10 @@ namespace FingerPrintDetectionWeb
         public void Configuration(IAppBuilder app)
         {
             ConfigureAuth(app);
-            app.CreatePerOwinContext(DriverManager.Create);
+            var scanner=ScannerManager.Create();
+            scanner.Start();
+            
+
         }
     }
 }

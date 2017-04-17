@@ -16,6 +16,7 @@ namespace FingerPrintDetectionModel
         public byte[] FirstFinger{ get; set; }
         public byte[] SecondFinger { get; set; }
         public byte[] ThirdFinger { get; set; }
-        public virtual LoginUser LoginUser { get; set; }
+        public virtual LogicalUser LogicalUser { get; set; }
+        public bool Deleted { get; set; }
     }
 }

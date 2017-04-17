@@ -10,67 +10,100 @@ namespace ScannerDriver
     {
         private readonly UFScannerManager manager;
         private static DriverManager instance;
+        private readonly ICommandRunner cmdRunner;
         public Dictionary<string, ScannerWrapper> Scanners { get; } = new Dictionary<string, ScannerWrapper>();
-
+        
         public bool IsRunning { get; private set; }
 
-        private DriverManager()
+        private DriverManager(ICommandRunner cmdRunner)
         {
             manager = new UFScannerManager(this);
             manager.ScannerEvent += Manager_ScannerEvent;
+            this.cmdRunner = cmdRunner;
             manager.Init();
+            
         }
 
-        public static DriverManager Create()
+        public static DriverManager Create(ICommandRunner commmandRunner)
         {
             if (instance != null) return instance;
-            instance = new DriverManager();
+            instance = new DriverManager(commmandRunner);
             instance.CreateHandle();
             return instance;
         }
 
-        public void Start()
+        public bool Start(out string error)
         {
+            error = "";
+
             if (IsRunning)
-                return;
-            manager.Init();
-            if (manager.Scanners != null)
-                for (var i = 0; i < manager.Scanners.Count; ++i)
-                {
-                    try
+                return true;
+            try
+            {
+                manager.Init();
+                if (manager.Scanners != null)
+                    for (var i = 0; i < manager.Scanners.Count; ++i)
                     {
-                        var scanner = new ScannerWrapper(manager.Scanners[i], this);
-                        if (!Scanners.Keys.Contains(scanner.Id))
+                        try
+                        {
+                            if (Scanners.Keys.Contains(manager.Scanners[i].CID))
+                                continue;
+                            var scanner = new ScannerWrapper(manager.Scanners[i], this);
                             Scanners.Add(scanner.Id, scanner);
-                        string mess;
-                        scanner.StartCapturing(out mess);
+                            scanner.CaptureEvent += Scanner_CaptureEvent;
+                            string mess;
+                            scanner.StartCapturing(out mess);
+                        }
+                        catch
+                        {
+                            // ignored
+                        }
                     }
-                    catch
-                    {
-                        // ignored
-                    }
-                }
-            IsRunning = true;
+                IsRunning = true;
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                error = ex.ToString();
+                return false;
+            }
         }
 
-        public void Stop()
+        private void Scanner_CaptureEvent(ScannerWrapper sender, byte[] template, string error)
         {
+            cmdRunner.SendCapture(new CommandResponse {Template=template,Status=string.IsNullOrEmpty(error),Message= error });
+        }
+       
+
+        public bool Stop(out string error)
+        {
+            error = "";
             IsRunning = false;
-            if (manager.Scanners != null)
-                for (var i = 0; i < manager.Scanners.Count; ++i)
-                {
-                    try
+            try
+            {
+                if (manager.Scanners != null)
+                    for (var i = 0; i < manager.Scanners.Count; ++i)
                     {
-                        var scanner = new ScannerWrapper(manager.Scanners[i], this);
-                        string mess;
-                        scanner.StopCapturing(out mess);
+                        try
+                        {
+                            var scanner = new ScannerWrapper(manager.Scanners[i], this);
+                            string mess;
+                            scanner.StopCapturing(out mess);
+                        }
+                        catch
+                        {
+                            // ignored
+                        }
                     }
-                    catch
-                    {
-                        // ignored
-                    }
-                }
-            manager.Uninit();
+                manager.Uninit();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                error = ex.ToString();
+                return false;
+            }
         }
 
         public bool StartCapturing(string scannerId, out string error)
@@ -83,6 +116,23 @@ namespace ScannerDriver
             if (Scanners.ContainsKey(scannerId)) return Scanners[scannerId].StartCapturing(out error);
             error = "Scanner not found";
             return false;
+        }
+
+        public byte[] CaptureSingleImage(string scannerId, out string error)
+        {
+            if (string.IsNullOrEmpty(scannerId))
+            {
+                error = "ScannerId is empty";
+                return new byte[0];
+            }
+            var scanner = Scanners.FirstOrDefault(m=>m.Key==scannerId);
+            if (scanner.Value != null)
+            {
+                return scanner.Value.CaptureSingleTemplate(out error);
+
+            }
+            error = "Scanner not found";
+            return new byte[0];
         }
 
         public ScannerWrapper GetScanner(string scannerId, out string error)
@@ -107,14 +157,22 @@ namespace ScannerDriver
 
         public List<ScannerState> GetScannersState()
         {
-            return Scanners.Select(item => new ScannerState
+            try
             {
-                Id = item.Key,
-                IsCapturing = item.Value.IsCapturing,
-                IsSensorOn = item.Value.IsSensorOn,
-                ImageQuality = item.Value.ImageQuality,
-                Timeout = item.Value.Timeout
-            }).ToList();
+                return Scanners.Select(item => new ScannerState
+                {
+                    Id = item.Key,
+                    IsCapturing = item.Value.IsCapturing,
+                    IsSensorOn = item.Value.IsSensorOn,
+                    ImageQuality = item.Value.ImageQuality,
+                    Timeout = item.Value.Timeout
+                }).ToList();
+            }
+            catch
+            {
+                
+            }
+            return new List<ScannerState>();
 
         }
 
@@ -135,17 +193,17 @@ namespace ScannerDriver
 
         private void Manager_ScannerEvent(object sender, UFScannerManagerScannerEventArgs e)
         {
+
         }
     }
 
     public class ScannerState
     {
-        public String Id { get; set; }
+        public string Id { get; set; }
         public bool IsCapturing { get; set; }
         public bool IsSensorOn { get; set; }
         public int ImageQuality { get; set; }
         public int Timeout { get; set; }
-
 
     }
 }

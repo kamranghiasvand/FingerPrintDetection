@@ -96,7 +96,7 @@ namespace FingerPrintDetectionWeb.Controllers
                         return Json(res);
                     }
                     var path = Server.MapPath("~/App_Data/uploads/");
-                    if (!System.IO.Directory.Exists(path))
+                    if (!Directory.Exists(path))
                         Directory.CreateDirectory(path);
                     path = Path.Combine(path, fileName);
                     try
@@ -105,7 +105,7 @@ namespace FingerPrintDetectionWeb.Controllers
                             System.IO.File.Delete(path);
                         soundFile.SaveAs(path);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         var res =
                             new
@@ -141,7 +141,7 @@ namespace FingerPrintDetectionWeb.Controllers
                 DbContext.LogicalUsers.Add(user);
                 DbContext.SaveChanges();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 var res = new { status = "fail", errors = new List<string> { "خطایی در سرور رخ داده است" } };
                 return Json(res);
@@ -223,7 +223,7 @@ namespace FingerPrintDetectionWeb.Controllers
 
                 return Json(new { status = "success", address = Url.Action("PlanList", "Panel") });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 var res = new { status = "fail", errors = new List<string> { "خطایی در سرور رخ داده است" } };
                 return Json(res);
@@ -243,33 +243,29 @@ namespace FingerPrintDetectionWeb.Controllers
             try
             {
                 var data = new List<object>();
-                double recordsTotal = 0, recordsFiltered = 0;
+                var total = await FingerPrintManager.GetScannersState();
+                if (paramView == null)
+                    paramView = new DatatablesParam();
 
-                await Task.Run(() =>
-                {
-                    var total = FingerPrintManager.GetScannersState();
-                    if (paramView == null)
-                        paramView = new DatatablesParam();
+                double recordsTotal = total.Count;
+                var filtered = string.IsNullOrEmpty(paramView.customSearch)
+                    ? total.OrderBy(m => m.Id)
+                    : total.Where(m => (m.Id.Contains(paramView.customSearch))).OrderBy(m => m.Id);
+                double recordsFiltered = filtered.Count();
 
-                    recordsTotal = total.Count;
-                    var filtered = string.IsNullOrEmpty(paramView.customSearch)
-                        ? total.OrderBy(m => m.Id)
-                        : total.Where(m => (m.Id.Contains(paramView.customSearch))).OrderBy(m => m.Id);
-                    recordsFiltered = filtered.Count();
-
-                    data.AddRange(
-                        filtered.Skip(paramView.start)
-                            .Take(paramView.length)
-                            .Select(state => new Dictionary<string, object>
-                            {
+                data.AddRange(
+                    filtered.Skip(paramView.start)
+                        .Take(paramView.length)
+                        .Select(state => new Dictionary<string, object>
+                        {
                                 {"Id", state.Id},
                                 {"ImageQuality ", state.ImageQuality},
                                 {"IsCapturing", state.IsCapturing},
                                 {"IsSensorOn", state.IsSensorOn},
                                 {"Timeout", state.Timeout}
-                            }));
-                });
-                return Json(new {paramView.draw, recordsTotal, recordsFiltered, data}, JsonRequestBehavior.AllowGet);
+                        }));
+
+                return Json(new { paramView.draw, recordsTotal, recordsFiltered, data }, JsonRequestBehavior.AllowGet);
             }
             catch
             {
@@ -284,7 +280,7 @@ namespace FingerPrintDetectionWeb.Controllers
             try
             {
                 FingerPrintManager.Stop();
-                return Json(new {status = "success", address = Url.Action("ScannerManager", "Panel")});
+                return Json(new { status = "success", address = Url.Action("ScannerManager", "Panel") });
             }
             catch
             {

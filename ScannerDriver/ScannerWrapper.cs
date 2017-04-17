@@ -11,6 +11,7 @@ namespace ScannerDriver
         private IScannerManager manager;
         const int MaxTemplateSize = 1024;
         public event CaptureEventHandler CaptureEvent;
+        private bool isCaptureSingleImage;
         public int ImageQuality { get; set; } = 40;
 
         public int Timeout
@@ -48,9 +49,18 @@ namespace ScannerDriver
 
         public byte[] CaptureSingleTemplate(out string error)
         {
-            var status = scanner.CaptureSingleImage();
-            if (status == UFS_STATUS.OK) return ExtractTemplate(out error);
-            UFScanner.GetErrorString(status, out error);
+            isCaptureSingleImage = true;
+            try
+            {
+                var status = scanner.CaptureSingleImage();
+                if (status == UFS_STATUS.OK) return ExtractTemplate(out error);
+                UFScanner.GetErrorString(status, out error);
+            }
+            catch(Exception ex)
+            {
+                error = ex.ToString();
+            }
+            isCaptureSingleImage = false;
             return new byte[0];
         }
         public bool StartCapturing(out string error)
@@ -60,7 +70,6 @@ namespace ScannerDriver
             var status = scanner.StartCapturing();
             if (status == UFS_STATUS.OK)
                 return true;
-
             UFScanner.GetErrorString(status, out error);
             return false;
         }
@@ -102,6 +111,8 @@ namespace ScannerDriver
         private int Scanner_CaptureEvent(object sender, UFScannerCaptureEventArgs e)
         {
             if (!IsCapturing)
+                return 1;
+            if (isCaptureSingleImage)
                 return 1;
             if (!e.FingerOn)
                 return 1;

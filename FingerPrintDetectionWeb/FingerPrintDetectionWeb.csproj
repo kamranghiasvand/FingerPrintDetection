@@ -125,6 +125,10 @@
       <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Suprema.UFMatcher, Version=3.5.0.0, Culture=neutral">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ScannerDriver\Dlls\Suprema.UFMatcher.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -217,6 +221,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Manager\IdentifyManager.cs" />
+    <Compile Include="Manager\ScannerManager.cs" />
     <Compile Include="Models\DataTableViewModel.cs" />
     <Compile Include="Models\LogicalUserViewModel.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
@@ -668,10 +673,6 @@
     <ProjectReference Include="..\FingerPrintDetectionModel\FingerPrintDetectionModel.csproj">
       <Project>{772a4bf9-0039-43f0-9167-581bcd1a7a58}</Project>
       <Name>FingerPrintDetectionModel</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ScannerDriver\ScannerDriver.csproj">
-      <Project>{7007babc-737d-40f1-a7aa-b2b5c5ee1077}</Project>
-      <Name>ScannerDriver</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
