@@ -259,7 +259,7 @@ namespace FingerPrintDetectionWeb.Controllers
                         .Select(state => new Dictionary<string, object>
                         {
                                 {"Id", state.Id},
-                                {"ImageQuality ", state.ImageQuality},
+                                {"ImageQuality", state.ImageQuality},
                                 {"IsCapturing", state.IsCapturing},
                                 {"IsSensorOn", state.IsSensorOn},
                                 {"Timeout", state.Timeout}
