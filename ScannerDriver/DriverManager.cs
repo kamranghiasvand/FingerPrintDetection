@@ -47,7 +47,11 @@ namespace ScannerDriver
                         try
                         {
                             if (Scanners.Keys.Contains(manager.Scanners[i].CID))
-                                continue;
+                            {
+                                string m;
+                                Scanners[(manager.Scanners[i].CID)].StartCapturing(out m);
+                            continue;
+                            }
                             var scanner = new ScannerWrapper(manager.Scanners[i], this);
                             Scanners.Add(scanner.Id, scanner);
                             scanner.CaptureEvent += Scanner_CaptureEvent;
@@ -88,6 +92,7 @@ namespace ScannerDriver
                         try
                         {
                             var scanner = new ScannerWrapper(manager.Scanners[i], this);
+                            Scanners.Remove(scanner.Id);
                             string mess;
                             scanner.StopCapturing(out mess);
                         }

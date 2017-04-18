@@ -35,57 +35,64 @@ namespace FingerPrintDetectionWeb.Manager
         {
             if (IsRunning)
                 return;
-            IsRunning = true;
-            worker.Start();
-            initDriver();
+            IsRunning = InitDriver();
+            if (IsRunning)
+                worker.Start();
 
         }
 
-        private void initDriver()
+        private static bool InitDriver()
         {
             try
             {
-                var client = new TcpClient();
-                client.Connect(IPAddress.Parse("127.0.0.1"), 1468);
-                var reader = new StreamReader(client.GetStream());
-                var writer = new StreamWriter(client.GetStream());
-                var request = new CommandRequest {Name = CommandName.Start};
-                writer.WriteLine(JsonConvert.SerializeObject(request));
-                writer.Flush();
-                writer.Close();
-                var response = JsonConvert.DeserializeObject<CommandResponse>(reader.ReadLine());
-            }
-            catch(Exception ex)
-            {
-                
-            }
-        }
-
-        private void uninitDriver()
-        {
-            try
-            {
-                var client = new TcpClient();
-                client.Connect(IPAddress.Parse("127.0.0.1"), 1468);
-                var reader = new StreamReader(client.GetStream());
-                var writer = new StreamWriter(client.GetStream());
-                var request = new CommandRequest { Name = CommandName.Stop };
-                writer.WriteLine(JsonConvert.SerializeObject(request));
-                writer.Flush();
-                writer.Close();
-                var response = JsonConvert.DeserializeObject<CommandResponse>(reader.ReadLine());
+                using (var client = new TcpClient())
+                {
+                    client.Connect(IPAddress.Parse("127.0.0.1"), 1468);
+                    var reader = new StreamReader(client.GetStream());
+                    var writer = new StreamWriter(client.GetStream());
+                    var request = new CommandRequest { Name = CommandName.Start };
+                    writer.WriteLine(JsonConvert.SerializeObject(request));
+                    writer.Flush();
+                    var response = JsonConvert.DeserializeObject<CommandResponse>(reader.ReadLine());
+                    return response.Status;
+                }
 
             }
             catch
             {
 
             }
+            return false;
+        }
+
+        private static bool UninitDriver()
+        {
+            try
+            {
+                using (var client = new TcpClient())
+                {
+                    client.Connect(IPAddress.Parse("127.0.0.1"), 1468);
+                    var reader = new StreamReader(client.GetStream());
+                    var writer = new StreamWriter(client.GetStream());
+                    var request = new CommandRequest { Name = CommandName.Stop };
+                    writer.WriteLine(JsonConvert.SerializeObject(request));
+                    writer.Flush();
+                    var response = JsonConvert.DeserializeObject<CommandResponse>(reader.ReadLine());
+                    return response.Status;
+                }
+
+            }
+            catch
+            {
+
+            }
+            return false;
         }
         public void Stop()
         {
-            IsRunning = false;
-            uninitDriver();
-            worker.Join();
+            IsRunning = !UninitDriver();
+            if (!IsRunning)
+                worker.Join();
         }
         private void ThreadWorker()
         {

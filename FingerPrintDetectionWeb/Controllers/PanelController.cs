@@ -273,35 +273,40 @@ namespace FingerPrintDetectionWeb.Controllers
                 return Json(res);
             }
         }
-
-        [HttpPost]
-        public JsonResult StopScannerManager()
+        
+        private JsonResult StopScannerManager()
         {
             try
             {
                 FingerPrintManager.Stop();
-                return Json(new { status = "success", address = Url.Action("ScannerManager", "Panel") });
+                return Json(new { status = "success", address = Url.Action("ScannerManager", "Panel"), state = FingerPrintManager.IsRunning });
             }
             catch
             {
-                var res = new { status = "fail", errors = new List<string> { "خطایی در سرور رخ داده است" } };
+                var res = new { status = "fail", errors = new List<string> { "خطایی در سرور رخ داده است" }, state = FingerPrintManager.IsRunning };
                 return Json(res);
             }
         }
-        [HttpPost]
-        public JsonResult StartScannerManager()
+        private JsonResult StartScannerManager()
         {
             try
             {
                 FingerPrintManager.Start();
-                return Json(new { status = "success", address = Url.Action("ScannerManager", "Panel") });
+                return Json(new { status = "success", address = Url.Action("ScannerManager", "Panel") ,state=FingerPrintManager.IsRunning});
             }
             catch
             {
-                var res = new { status = "fail", errors = new List<string> { "خطایی در سرور رخ داده است" } };
+                var res = new { status = "fail", errors = new List<string> { "خطایی در سرور رخ داده است" }, state = FingerPrintManager.IsRunning };
                 return Json(res);
             }
         }
+
+        [HttpPost]
+        public JsonResult ToggleScannerManager()
+        {
+            return FingerPrintManager.IsRunning ? StopScannerManager() : StartScannerManager();
+        }
+
         #endregion
     }
 
