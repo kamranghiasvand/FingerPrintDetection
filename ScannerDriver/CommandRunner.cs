@@ -36,13 +36,16 @@ namespace ScannerDriver
         }
         public void Start()
         {
-
+            if (IsRunning)
+                return;
             worker = new Thread(ThreadWorker) { IsBackground = false };
             IsRunning = true;
             worker.Start();
         }
         public void Stop()
         {
+            if (!IsRunning)
+                return;
             IsRunning = false;
             worker.Join();
         }
