@@ -129,6 +129,9 @@
     <PreBuildEvent>taskkill /IM "ScannerDriver.exe" /F /FI "IMAGENAME eq ScannerDriver.exe"
 xcopy "$(ProjectDir)Dlls" "$(TargetDir)" /s /e /Y</PreBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>xcopy "$(TargetDir)." "$(SolutionDir)FingerPrintDetectionWeb\bin\" /s /e /Y</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

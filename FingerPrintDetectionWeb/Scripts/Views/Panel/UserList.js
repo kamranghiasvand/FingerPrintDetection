@@ -64,4 +64,5 @@
             userTables.ajax.reload();
         }
     });
+
 });

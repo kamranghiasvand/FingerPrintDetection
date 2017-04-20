@@ -47,6 +47,8 @@ namespace ScannerDriver
             if (!IsRunning)
                 return;
             IsRunning = false;
+            string mess;
+            scannerManager.Stop(out mess);
             worker.Join();
         }
         private void ThreadWorker()
@@ -111,6 +113,9 @@ namespace ScannerDriver
                             break;
                         case CommandName.GetScannerState:
                             scannerState= scannerManager.GetScannersState();
+                            break;
+                        case CommandName.Exit:
+                            Stop();
                             break;
                     }
                     var res = new CommandResponse { Status = string.IsNullOrEmpty(mess), Message = mess,Template=template,ScannersState = scannerState };
@@ -177,6 +182,7 @@ namespace ScannerDriver
         Start,
         Stop,
         CaptureSingleImage,
-        GetScannerState
+        GetScannerState,
+        Exit
     }
 }

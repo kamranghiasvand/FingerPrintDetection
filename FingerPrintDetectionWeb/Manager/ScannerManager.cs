@@ -310,7 +310,8 @@ namespace FingerPrintDetectionWeb.Manager
         Start,
         Stop,
         CaptureSingleImage,
-        GetScannerState
+        GetScannerState,
+        Exit
     }
     public class ScannerState
     {

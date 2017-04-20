@@ -148,9 +148,68 @@ namespace FingerPrintDetectionWeb.Controllers
             }
             return Json(new { status = "success", address = Url.Action("UserList", "Panel") });
         }
+
+        public ActionResult RealUserList()
+        {
+            return View();
+        }
+
+        public ActionResult AddRealUser()
+        {
+            return View();
+
+        }
+
+        public async Task<JsonResult> GetRealUsersListAsync(DatatablesParam paramView)
+        {
+            var data = new List<object>();
+            double recordsTotal = 0, recordsFiltered = 0;
+
+            await Task.Run(() =>
+            {
+                if (paramView == null)
+                    paramView = new DatatablesParam();
+                recordsTotal = DbContext.RealUsers.Count(m => !m.Deleted);
+                var users = string.IsNullOrEmpty(paramView.customSearch) ?
+                   DbContext.RealUsers.Where(m => !m.Deleted).OrderBy(m => m.Id) :
+                   DbContext.RealUsers.Where(m => !m.Deleted && (m.FirstName.Contains(paramView.customSearch) || m.LastName.Contains(paramView.customSearch))).OrderBy(m => m.Id);
+                recordsFiltered = users.Count();
+
+                foreach (var user in users.Skip(paramView.start).Take(paramView.length))
+                {
+                    var fingers = new bool[3];
+                    fingers[0] = user.FirstFinger != null && user.FirstFinger.Length > 0;
+                    fingers[1] = user.SecondFinger != null && user.SecondFinger.Length > 0;
+                    fingers[2] = user.ThirdFinger != null && user.ThirdFinger.Length > 0;
+                    var row = new Dictionary<string, object>
+                     {
+                         {"Id", user.Id},
+                         {"FirstName", user.FirstName},
+                         {"LastName", user.LastName},
+                        {"Fingers",fingers }
+                     };
+                    data.Add(row);
+                }
+            });
+            return Json(new { paramView.draw, recordsTotal, recordsFiltered, data }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult AddRealUser(RealUserViewModel model)
+        {
+            return null;
+        }
+
+        [HttpPost]
+        public JsonResult DeleteRealUser(long id)
+        {
+            return null;
+
+        }
+
         #endregion
 
-        #region User Management
+        #region Plan Management
         public ActionResult PlanList()
         {
             return View();
@@ -229,6 +288,8 @@ namespace FingerPrintDetectionWeb.Controllers
                 return Json(res);
             }
         }
+
+
         #endregion
 
         #region Scanner Manager
@@ -273,7 +334,7 @@ namespace FingerPrintDetectionWeb.Controllers
                 return Json(res);
             }
         }
-        
+
         private JsonResult StopScannerManager()
         {
             try
@@ -292,7 +353,7 @@ namespace FingerPrintDetectionWeb.Controllers
             try
             {
                 FingerPrintManager.Start();
-                return Json(new { status = "success", address = Url.Action("ScannerManager", "Panel") ,state=FingerPrintManager.IsRunning});
+                return Json(new { status = "success", address = Url.Action("ScannerManager", "Panel"), state = FingerPrintManager.IsRunning });
             }
             catch
             {

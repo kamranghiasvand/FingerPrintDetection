@@ -16,6 +16,9 @@ namespace ScannerDriver
                 return;
             var cmd = CommandRunner.Create();
             cmd.Start();
+            while (Console.ReadLine() != "exit")
+                continue;
+            cmd.Stop();
         }
     }
 }

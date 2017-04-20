@@ -86,7 +86,10 @@
                             <a class="@(cn == nameof(PanelController) && an == nameof(PanelController.AddPlan) ? "active" : "")" href="@Url.Action("AddPlan", "Panel")"><i class="fa fa-user fa-fw"></i>ایجاد پلن جدید</a>
                         </li>
                         <li>
-                            <a class="@(cn== nameof(PanelController)&& an== nameof(PanelController.ScannerManager) ? "active" : "")" href="@Url.Action("ScannerManager", "Panel")"><i class="fa fa-user fa-fw"></i>لیست اسکنرها</a>
+                            <a class="@(cn == nameof(PanelController) && an == nameof(PanelController.ScannerManager) ? "active" : "")" href="@Url.Action("ScannerManager", "Panel")"><i class="fa fa-user fa-fw"></i>لیست اسکنرها</a>
+                        </li>
+                        <li>
+                            <a class="@(cn== nameof(PanelController)&& an== nameof(PanelController.RealUserList) ? "active" : "")" href="@Url.Action("RealUserList", "Panel")"><i class="fa fa-user fa-fw"></i>لیست کاربران حقیقی</a>
                         </li>
                     </ul>
                 </div>
