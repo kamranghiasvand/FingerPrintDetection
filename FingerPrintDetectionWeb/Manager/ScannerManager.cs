@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -20,6 +21,21 @@ namespace FingerPrintDetectionWeb.Manager
         private static ScannerManager instance;
         private ScannerManager()
         {
+            try
+            {
+                if (Process.GetProcessesByName("ScannerDriver").Length == 0 &&
+                    Process.GetProcessesByName("ScannerDriver.vshost").Length == 0)
+                {
+                    var info = new ProcessStartInfo
+                    {
+                        UseShellExecute = true,
+                        FileName = AppDomain.CurrentDomain.BaseDirectory + "bin\\ScannerDriver.exe",
+
+                    };
+                    Process.Start(info);
+                }
+            }
+            catch { }
             worker = new Thread(ThreadWorker);
             listener = new TcpListener(IPAddress.Parse("127.0.0.1"), 1568);
         }
@@ -60,7 +76,7 @@ namespace FingerPrintDetectionWeb.Manager
             }
             catch
             {
-
+                // ignored
             }
             return false;
         }
@@ -84,7 +100,7 @@ namespace FingerPrintDetectionWeb.Manager
             }
             catch
             {
-
+                // ignored
             }
             return false;
         }
@@ -170,8 +186,6 @@ namespace FingerPrintDetectionWeb.Manager
                     request.Arguments.Add(new Argument { Name = "ScannerId", Value = scannerId });
                     writer.WriteLine(JsonConvert.SerializeObject(request));
                     writer.Flush();
-                    writer.Close();
-
                     var response = JsonConvert.DeserializeObject<CommandResponse>(reader.ReadLine());
                     error = response.Message;
                     if (response.Status)
@@ -208,7 +222,7 @@ namespace FingerPrintDetectionWeb.Manager
                         res = response.ScannersState;
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // ignored
                 }
@@ -228,24 +242,27 @@ namespace FingerPrintDetectionWeb.Manager
                     foreach (var realUser in dbContext.RealUsers)
                     {
                         var found = false;
-
+                        UFM_STATUS stat=UFM_STATUS.OK;
                         if (realUser.FirstFinger != null)
-                            matcher.Verify(template, template.Length, realUser.FirstFinger,
-                                realUser.FirstFinger.Length, out found);
+                            stat = matcher.Verify(template, template.Length, realUser.FirstFinger,
+                                   realUser.FirstFinger.Length, out found);
                         if (found)
                             return realUser.Id;
 
                         if (realUser.SecondFinger != null)
-                            matcher.Verify(template, template.Length, realUser.SecondFinger,
-                                realUser.SecondFinger.Length, out found);
+                            stat = matcher.Verify(template, template.Length, realUser.SecondFinger,
+                                 realUser.SecondFinger.Length, out found);
+
                         if (found)
                             return realUser.Id;
 
                         if (realUser.ThirdFinger != null)
-                            matcher.Verify(template, template.Length, realUser.ThirdFinger,
-                                realUser.ThirdFinger.Length, out found);
+                            stat = matcher.Verify(template, template.Length, realUser.ThirdFinger,
+                                 realUser.ThirdFinger.Length, out found);
                         if (found)
                             return realUser.Id;
+                        string error;
+                        UFMatcher.GetErrorString(stat, out error);
                     }
                 }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,15 +23,17 @@ namespace FingerPrintDetectionWeb.Controllers
 
 
         #region User Management
-        public ActionResult UserList()
+
+        #region Logical User
+        public ActionResult LogicalUserList()
         {
             return View();
         }
-        public ActionResult AddUser()
+        public ActionResult AddLogicalUser()
         {
             return View();
         }
-        public async Task<JsonResult> GetUsersListAsync(DatatablesParam paramView)
+        public async Task<JsonResult> GetLogicalUsersListAsync(DatatablesParam paramView)
         {
 
             var data = new List<object>();
@@ -61,7 +64,7 @@ namespace FingerPrintDetectionWeb.Controllers
         }
 
         [HttpPost]
-        public JsonResult AddUser(LogicalUserViewModel model, HttpPostedFileBase soundFile)
+        public JsonResult AddLogicalUser(LogicalUserViewModel model, HttpPostedFileBase soundFile)
         {
             try
             {
@@ -146,9 +149,11 @@ namespace FingerPrintDetectionWeb.Controllers
                 var res = new { status = "fail", errors = new List<string> { "خطایی در سرور رخ داده است" } };
                 return Json(res);
             }
-            return Json(new { status = "success", address = Url.Action("UserList", "Panel") });
+            return Json(new { status = "success", address = Url.Action("LogicalUserList", "Panel") });
         }
+        #endregion
 
+        #region Real User
         public ActionResult RealUserList()
         {
             return View();
@@ -195,9 +200,78 @@ namespace FingerPrintDetectionWeb.Controllers
         }
 
         [HttpPost]
-        public JsonResult AddRealUser(RealUserViewModel model)
+        public async Task<JsonResult> AddRealUser(RealUserViewModel model)
         {
-            return null;
+            return await Task.Run<JsonResult>(() =>
+            {
+                try
+                {
+                    if (!model.IsValid())
+                    {
+                        var res = new { status = "fail", errors = new List<string>() };
+                        foreach (var err in model.Errors.Take(3))
+                            res.errors.Add(err);
+                        return Json(res);
+                    }
+                    var logicaluser = DbContext.LogicalUsers.FirstOrDefault(m => m.Id == model.LogicalUserId);
+                    if (logicaluser == null)
+                    {
+                        var res = new { status = "fail", errors = new [] { "کابر منطقی را انتحاب کنید" } };
+                        return Json(res);
+                    }
+                    var realUser = new RealUser
+                    {
+                        FirstName = model.FirstName,
+                        LastName = model.LastName,
+                        LogicalUser = logicaluser,
+                        Birthday = ConvertPersianToEnglish(model.Birthday)
+                    };
+                    DbContext.RealUsers.Add(realUser);
+                    DbContext.SaveChanges();
+                }
+                catch (Exception)
+                {
+                    var res = new { status = "fail", errors = new [] { "خطایی در سرور رخ داده است" } };
+                    return Json(res);
+                }
+                return Json(new { status = "success", address = Url.Action("LogicalUserList", "Panel") });
+            });
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> AddFinger(int witchFinger, long userId)
+        {
+            try
+            {
+                if (!(new[] {0,1, 2}.Contains(witchFinger)))
+                    return Json(new {status = "fail", errors = new[] {"انگشت مورد نظر را انتخاب کنید"}});
+                var user = DbContext.RealUsers.FirstOrDefault(m => m.Id == userId);
+                if (user == null)
+                    return Json(new {status = "fail", errors = new[] {"کاربر مورد نظر را انتخاب کنید"}});
+                var status = await FingerPrintManager.GetScannersState();
+                if(status.Count==0)
+                    return Json(new { status = "fail", errors = new[] { "اسکنری پیدا نشد" } });
+                var error = "";
+                var template = await FingerPrintManager.CaptureSingleTemplate(status.First().Id, error);
+                if (template == null || template.Length == 0)
+                    return Json(new {status = "fail", errors = new[] {"انگشت کاربر تشخیص داده نشد"}});
+                if(witchFinger==0)
+                user.FirstFinger = template;
+                if (witchFinger == 1)
+                    user.SecondFinger = template;
+                if (witchFinger == 2)
+                    user.ThirdFinger = template;
+                DbContext.Entry(user).State = System.Data.Entity.EntityState.Modified;
+                DbContext.SaveChanges();
+                return Json(new {status = "success"});
+            }
+            catch
+            {
+                var res = new { status = "fail", errors = new []{ "خطایی در سرور رخ داده است" } };
+                return Json(res);
+            }
+
+
         }
 
         [HttpPost]
@@ -206,7 +280,7 @@ namespace FingerPrintDetectionWeb.Controllers
             return null;
 
         }
-
+        #endregion
         #endregion
 
         #region Plan Management
@@ -369,6 +443,15 @@ namespace FingerPrintDetectionWeb.Controllers
         }
 
         #endregion
+        public static DateTime ConvertPersianToEnglish(string persianDate)
+        {
+            string[] formats = { "yyyy/MM/dd", "yyyy/M/d", "yyyy/MM/d", "yyyy/M/dd" };
+            var d1 = DateTime.ParseExact(persianDate, formats,
+                                              CultureInfo.CurrentCulture, DateTimeStyles.None);
+            var date = new PersianCalendar();
+            var dt = date.ToDateTime(d1.Year, d1.Month, d1.Day, 0, 0, 0, 0, 0);
+            return dt;
+        }
     }
 
 }

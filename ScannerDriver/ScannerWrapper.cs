@@ -33,6 +33,7 @@ namespace ScannerDriver
                 throw new ArgumentNullException(nameof(manager));
             this.manager = manager;
             this.scanner = scanner;
+            this.scanner.nTemplateType = 2001;
             this.scanner.CaptureEvent += Scanner_CaptureEvent;
             Timeout = -1;
         }
@@ -87,6 +88,7 @@ namespace ScannerDriver
 
         private byte[] ExtractTemplate(out string error)
         {
+            scanner.nTemplateType = 2001;
             var bytes = new byte[MaxTemplateSize];
             int templateSize;
             int enrollQuality;
@@ -118,6 +120,8 @@ namespace ScannerDriver
                 return 1;
             string error;
             var template = ExtractTemplate(out error);
+            if (template == null || template.Length == 0)
+                return 1;
             if (CaptureEvent != null)
                 (new Thread(() =>
                 {
@@ -129,8 +133,8 @@ namespace ScannerDriver
 
         #region IDisposable Members
 
-        private Boolean disposed;
-        protected virtual void Dispose(Boolean disposing)
+        private bool disposed;
+        protected virtual void Dispose(bool disposing)
         {
             if (disposed)
             {

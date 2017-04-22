@@ -12,7 +12,7 @@ namespace ScannerDriver
         private static DriverManager instance;
         private readonly ICommandRunner cmdRunner;
         public Dictionary<string, ScannerWrapper> Scanners { get; } = new Dictionary<string, ScannerWrapper>();
-        
+
         public bool IsRunning { get; private set; }
 
         private DriverManager(ICommandRunner cmdRunner)
@@ -21,7 +21,7 @@ namespace ScannerDriver
             manager.ScannerEvent += Manager_ScannerEvent;
             this.cmdRunner = cmdRunner;
             manager.Init();
-            
+
         }
 
         public static DriverManager Create(ICommandRunner commmandRunner)
@@ -50,7 +50,7 @@ namespace ScannerDriver
                             {
                                 string m;
                                 Scanners[(manager.Scanners[i].CID)].StartCapturing(out m);
-                            continue;
+                                continue;
                             }
                             var scanner = new ScannerWrapper(manager.Scanners[i], this);
                             Scanners.Add(scanner.Id, scanner);
@@ -76,9 +76,9 @@ namespace ScannerDriver
 
         private void Scanner_CaptureEvent(ScannerWrapper sender, byte[] template, string error)
         {
-            cmdRunner.SendCapture(new CommandResponse {Template=template,Status=string.IsNullOrEmpty(error),Message= error });
+            cmdRunner.SendCapture(new CommandResponse { Template = template, Status = string.IsNullOrEmpty(error), Message = error });
         }
-       
+
 
         public bool Stop(out string error)
         {
@@ -113,44 +113,83 @@ namespace ScannerDriver
 
         public bool StartCapturing(string scannerId, out string error)
         {
-            if (string.IsNullOrEmpty(scannerId))
+            try
             {
-                error = "ScannerId is null";
+                if (string.IsNullOrEmpty(scannerId))
+                {
+                    error = "ScannerId is null";
+                    return false;
+                }
+                if (Scanners.ContainsKey(scannerId)) return Scanners[scannerId].StartCapturing(out error);
+                error = "Scanner not found";
                 return false;
             }
-            if (Scanners.ContainsKey(scannerId)) return Scanners[scannerId].StartCapturing(out error);
-            error = "Scanner not found";
-            return false;
+            catch
+            {
+                error = "System Failure";
+                return false;
+            }
         }
 
         public byte[] CaptureSingleImage(string scannerId, out string error)
         {
-            if (string.IsNullOrEmpty(scannerId))
+            try
             {
-                error = "ScannerId is empty";
+
+                if (string.IsNullOrEmpty(scannerId))
+                {
+                    error = "ScannerId is empty";
+                    return new byte[0];
+                }
+                var scanner = Scanners.FirstOrDefault(m => m.Key == scannerId);
+                if (scanner.Value != null)
+                {
+                    var s = scanner.Value;
+                    var iscapturing = s.IsCapturing;
+                    var timeout = s.Timeout;
+                    if (iscapturing)
+                        if (!s.StopCapturing(out error))
+                            return new byte[0];
+                    if (!s.ClearCaptureImageBuffer(out error))
+                        return new byte[0];
+                    s.Timeout = 3000;
+                    var res = scanner.Value.CaptureSingleTemplate(out error);
+                    s.Timeout = timeout;
+                    if (!iscapturing) return res;
+                    string x;
+                    s.StartCapturing(out x);
+                    return res;
+
+                }
+                error = "Scanner not found";
                 return new byte[0];
             }
-            var scanner = Scanners.FirstOrDefault(m=>m.Key==scannerId);
-            if (scanner.Value != null)
+            catch
             {
-                return scanner.Value.CaptureSingleTemplate(out error);
-
+                error = "System Failure";
+                return new byte[0];
             }
-            error = "Scanner not found";
-            return new byte[0];
         }
 
         public ScannerWrapper GetScanner(string scannerId, out string error)
         {
-            error = "";
-            if (string.IsNullOrEmpty(scannerId))
+            try
             {
-                error = "ScannerId is null";
+                error = "";
+                if (string.IsNullOrEmpty(scannerId))
+                {
+                    error = "ScannerId is null";
+                    return null;
+                }
+                if (Scanners.ContainsKey(scannerId)) return Scanners[scannerId];
+                error = "Scanner not found";
                 return null;
             }
-            if (Scanners.ContainsKey(scannerId)) return Scanners[scannerId];
-            error = "Scanner not found";
-            return null;
+            catch
+            {
+                error = "System Failure";
+                return null;
+            }
         }
 
         public ScannerWrapper GetFirstScanner()
@@ -175,7 +214,7 @@ namespace ScannerDriver
             }
             catch
             {
-                
+                // ignored
             }
             return new List<ScannerState>();
 

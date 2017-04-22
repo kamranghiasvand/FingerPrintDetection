@@ -13,10 +13,11 @@ namespace FingerPrintDetectionModel
         public long Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public byte[] FirstFinger{ get; set; }
+        public byte[] FirstFinger { get; set; }
         public byte[] SecondFinger { get; set; }
         public byte[] ThirdFinger { get; set; }
         public virtual LogicalUser LogicalUser { get; set; }
+        public DateTime Birthday { get; set; }
         public bool Deleted { get; set; }
     }
 }

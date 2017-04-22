@@ -1,16 +1,9 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using System.Web;
+﻿using System.Threading.Tasks;
 using System.Web.Mvc;
-using FingerPrintDetectionWeb.Manager;
 using FingerPrintDetectionWeb.Models;
 using FingerPrintDetectionWeb.Resources;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security;
 
 namespace FingerPrintDetectionWeb.Controllers
 {
@@ -20,9 +13,9 @@ namespace FingerPrintDetectionWeb.Controllers
         //
         // GET: /Account/Login
         [AllowAnonymous]
-        public ActionResult Login(string ReturnUrl)
+        public ActionResult Login(string returnUrl)
         {
-            ViewBag.ReturnUrl = ReturnUrl;
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
@@ -44,7 +37,7 @@ namespace FingerPrintDetectionWeb.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
-                    return RedirectToAction("Index", "Panel");
+                    return RedirectToAction("LogicalUserList", "Panel");
                 //case SignInStatus.LockedOut:
                 //    return View("Lockout");
                 //case SignInStatus.RequiresVerification:

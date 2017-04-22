@@ -22,16 +22,8 @@
     <link href="~/Content/DataTables/css/buttons.bootstrap.css" rel="stylesheet" />
 
     <!--bootstrap date time picker-->
-    @*<link href="~/Content/bootstrap-datetimepicker.min.css" rel="stylesheet"/>*@
-    <link href="~/Content/bootstrap-datepicker.css" rel="stylesheet" />
     <link href="~/Content/bootstrap-timepicker.css" rel="stylesheet" />
-
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <link href="~/Content/persian-datepicker-0.4.5.min.css" rel="stylesheet" />
 </head>
 <body>
     <div id="wrapper">
@@ -52,7 +44,7 @@
                     </a>
                     <ul class="dropdown-menu dropdown-user">
                         <li>
-                            @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+                            @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new {id = "logoutForm"}))
                             {
                                 @Html.AntiForgeryToken()
                             }
@@ -70,14 +62,14 @@
                             var cn = ViewContext.RouteData.GetRequiredString("controller") + "Controller";
                             var an = ViewContext.RouteData.GetRequiredString("action");
                         }
+                        @*<li>
+                                <a class="@(cn == nameof(PanelController) &&  an== nameof(PanelController.Index) ? "active" : "")" href="@Url.Action("Index", "Panel")"><i class="fa fa-dashboard fa-fw"></i> داشبورد</a>
+                            </li>*@
                         <li>
-                            <a class="@(cn == nameof(PanelController) &&  an== nameof(PanelController.Index) ? "active" : "")" href="@Url.Action("Index", "Panel")"><i class="fa fa-dashboard fa-fw"></i> داشبورد</a>
+                            <a class="@(cn== nameof(PanelController)&& an== nameof(PanelController.LogicalUserList) ? "active" : "")" href="@Url.Action("LogicalUserList", "Panel")"><i class="fa fa-user fa-fw"></i>لیست کاربران منطقی</a>
                         </li>
                         <li>
-                            <a class="@(cn== nameof(PanelController)&& an== nameof(PanelController.UserList) ? "active" : "")" href="@Url.Action("UserList", "Panel")"><i class="fa fa-user fa-fw"></i>لیست کاربران</a>
-                        </li>
-                        <li>
-                            <a class="@(cn == nameof(PanelController) && an == nameof(PanelController.AddUser) ? "active" : "")" href="@Url.Action("AddUser", "Panel")"><i class="fa fa-user fa-fw"></i>ایجاد کاربر جدید</a>
+                            <a class="@(cn == nameof(PanelController) && an == nameof(PanelController.AddLogicalUser) ? "active" : "")" href="@Url.Action("AddLogicalUser", "Panel")"><i class="fa fa-user fa-fw"></i>ایجاد کاربر منطقی</a>
                         </li>
                         <li>
                             <a class="@(cn == nameof(PanelController) && an == nameof(PanelController.PlanList) ? "active" : "")" href="@Url.Action("PlanList", "Panel")"><i class="fa fa-user fa-fw"></i>لیست پلن ها</a>
@@ -89,7 +81,10 @@
                             <a class="@(cn == nameof(PanelController) && an == nameof(PanelController.ScannerManager) ? "active" : "")" href="@Url.Action("ScannerManager", "Panel")"><i class="fa fa-user fa-fw"></i>لیست اسکنرها</a>
                         </li>
                         <li>
-                            <a class="@(cn== nameof(PanelController)&& an== nameof(PanelController.RealUserList) ? "active" : "")" href="@Url.Action("RealUserList", "Panel")"><i class="fa fa-user fa-fw"></i>لیست کاربران حقیقی</a>
+                            <a class="@(cn == nameof(PanelController) && an == nameof(PanelController.RealUserList) ? "active" : "")" href="@Url.Action("RealUserList", "Panel")"><i class="fa fa-user fa-fw"></i>لیست کاربران حقیقی</a>
+                        </li>
+                        <li>
+                            <a class="@(cn == nameof(PanelController) && an == nameof(PanelController.AddRealUser) ? "active" : "")" href="@Url.Action("AddRealUser", "Panel")"><i class="fa fa-user fa-fw"></i>ایجاد کاربر حقیقی</a>
                         </li>
                     </ul>
                 </div>
@@ -106,6 +101,7 @@
     </div>
     <script src="~/Scripts/jquery-2.1.1.min.js"></script>
     <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery-ui-1.12.1.min.js"></script>
     <script src="~/js/bootstrap.min.js"></script>
     <script src="~/js/metisMenu/metisMenu.min.js"></script>
     <script src="~/js/raphael/raphael.min.js"></script>
@@ -121,7 +117,8 @@
     <script src="~/Scripts/DataTables/buttons.bootstrap.js"></script>
 
     <!--bootstrap date time picker-->
-    <script src="~/Scripts/datepicker/bootstrap-datepicker.js"></script>
+    <script src="~/Scripts/persian-date.js"></script>
+    <script src="~/Scripts/persian-datepicker-0.4.5.min.js"></script>
     <script src="~/Scripts/bootstrap-timepicker.js"></script>
 
     @RenderSection("scripts", false)

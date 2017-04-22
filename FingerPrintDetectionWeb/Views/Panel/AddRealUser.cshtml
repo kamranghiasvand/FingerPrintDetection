@@ -48,7 +48,7 @@
             </h3>
         </div>
         <div class="panel-body">
-            <form role="form" id="addUserForm" enctype="multipart/form-data" data-url="@Url.Action("AddUser", "Panel")" method="post">
+            <form role="form" id="addUserForm" data-url="@Url.Action("AddRealUser", "Panel")" method="post">
                 <div class="row">
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 validation-summary-errors hidden" style="color: red;" data-valmsg-summary="true">
                     </div>
@@ -64,22 +64,20 @@
                             <input type="text" class="form-control" id="lastName" name="LastName" placeholder="Last Name">
                         </div>
                         <div class="form-group">
-                            <label class="btn btn-default btn-file">
-                                انتخاب فایل صدا <input type="file" accept="audio/mp3" id="soundFile" name="soundFile" style="display: none" />
-                            </label>
-                            <div class="">
-                                <audio id="player" controls="controls" style="max-height: 35px; max-width: 300px;">
-                                    <source id="sourceMp3" src="" type="audio/mp3" />
-                                </audio>
+                            <label>تاریخ تولد</label>
+                            <div class="input-group">
+                                <input id="birthdayTimepicker" type="text" class="form-control required" name="Birthday">
+                                <div class="input-group-addon">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </div>
                             </div>
-
                         </div>
                         <div class="form-group">
-                            <label for="PlanId" class="control-label">انتخاب پلن</label>
-                            <select id="PlanId" name="PlanId" class="selecter_3 form-control" required data-selecter-options='{"cover":"true"}'>
-                                @foreach (var item in GetPlanList())
+                            <label for="LogicalUserId" class="control-label">انتخاب کاربر منطقی</label>
+                            <select id="LogicalUserId" name="LogicalUserId" class="selecter_3 form-control" required data-selecter-options='{"cover":"true"}'>
+                                @foreach (var item in GetLogicalUserList())
                                 {
-                                    <option value="@item.Id">@item.Name</option>
+                                    <option value="@item.Id">@(item.FirstName + " "+ item.LastName)</option>
                                 }
                             </select>
 
@@ -99,5 +97,5 @@
     </div>
 </div>
 @section scripts{
-    <script src="~/Scripts/Views/Panel/AddUser.js"></script>
+    <script src="~/Scripts/Views/Panel/AddRealUser.js"></script>
 }
