@@ -25,6 +25,7 @@ namespace FingerPrintDetectionModel
         public DbSet<SoundTrack> SoundTracks { get; set; }
         public DbSet<LogicalUser> LogicalUsers { get; set; }
         public DbSet<Plan> Plans { get; set; }
+        public DbSet<Log> Logs { get; set; }
         
     }
     public class UserClaim : IdentityUserClaim<long>

@@ -11,7 +11,8 @@
     };
     var settings = {
         "language": {
-            "processing": '<i style="z-index:1000" class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><span class="sr-only">Loading...</span>'
+            "processing": '<i style="z-index:1000" class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><span class="sr-only">Loading...</span>',
+            "search": "جستجو:"
         },
         serverSide: true,
         processing: true,
@@ -80,8 +81,9 @@
                 sortable: false,
                 searchable: false,
                 render: function (data, type, row) {
-
-                    return '<div class="btn btn-danger deleteuser" data-id="' + row.Id + '"> حذف</div>';
+                    var url = $('#UserdataTables').data('edituser') + "?id=" + row.Id;
+                    return '<div class="btn btn-sm btn-danger deleteuser" data-id="' + row.Id + '"> حذف</div>' +
+                     '<a class="btn btn-sm btn-info" href="' + url + '"> ویرایش</div>';
                 }
             }
         ]
@@ -135,16 +137,14 @@
         });
     });
 
-    $('.deleteuser').bind('click', function (e) {
+    $(document).on('click','.deleteuser', function (e) {
         $('#globalLoadingModal').modal('show');
         var url = $('#UserdataTables').data('removeuser');
         $.ajax({
             type: 'POST',
             url: url,
             async: false,
-            data: $(this).data('id'),
-            contentType: false,
-            processData: false,
+            data: { "Id": $(e.target).data('id') },
             success: function (data) {
                 $('#globalLoadingModal').modal('hide');
                 if (data.status === 'success') {
@@ -158,7 +158,7 @@
                     }
 
                 }
-                $('#UserdataTables').ajax.reload();
+                userTables.ajax.reload();
                 // $("#answers").html(response);
             },
             error: function (errors) {

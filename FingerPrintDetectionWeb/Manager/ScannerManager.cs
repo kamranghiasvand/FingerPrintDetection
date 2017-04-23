@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using FingerPrintDetectionModel;
+using NAudio.Wave;
 using Newtonsoft.Json;
 using Suprema;
 
@@ -35,7 +37,10 @@ namespace FingerPrintDetectionWeb.Manager
                     Process.Start(info);
                 }
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
             worker = new Thread(ThreadWorker);
             listener = new TcpListener(IPAddress.Parse("127.0.0.1"), 1568);
         }
@@ -137,24 +142,58 @@ namespace FingerPrintDetectionWeb.Manager
                     return;
                 using (var dbContext = new ApplicationDbContext())
                 {
+                    var dtn = DateTime.Now;
                     var user = dbContext.RealUsers.FirstOrDefault(m => !m.Deleted && m.Id == userId);
                     if (user?.LogicalUser == null || user.LogicalUser.Deleted)
                         return;
+                    try
+                    {
+                        var log = new Log
+                        {
+                            RealUserId = user.Id,
+                            Time = dtn,
+                            Income = true,
+                            LogicalUserId = (long) user.LogicalUser?.Id,
+                            PlanId = user.LogicalUser?.Plan?.Id ?? -1
+
+                        };
+                        var find =
+                            dbContext.Logs.Where(
+                                m =>
+                                    !m.Deleted &&
+                                    DbFunctions.CreateDateTime(dtn.Year, dtn.Month, dtn.Day, 0, 0, 0) <= m.Time);
+                        if (find.Count() != 0)
+                        {
+                            var lastState = find.OrderByDescending(m => m.Time).First();
+                            if (lastState.Income)
+                                log.Income = false;
+                        }
+                        dbContext.Logs.Add(log);
+                        dbContext.SaveChanges();
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
                     if (user.LogicalUser.Plan == null || user.LogicalUser.Plan.Deleted)
                         return;
+
                     if (user.LogicalUser.Sound == null || user.LogicalUser.Sound.Deleted ||
                         string.IsNullOrEmpty(user.LogicalUser.Sound.Uri))
                         return;
                     var plan = user.LogicalUser.Plan;
-                    var dtn = DateTime.Now;
+
                     if (TimeSpan.Compare(dtn.TimeOfDay, plan.StartTime.TimeOfDay) < 0 ||
                         TimeSpan.Compare(dtn.TimeOfDay, plan.EndTime.TimeOfDay) >= 0) return;
                     var sound = user.LogicalUser.Sound;
                     try
                     {
-                        var player = new System.Media.SoundPlayer { SoundLocation = new Uri(sound.Uri).AbsolutePath };
+                        IWavePlayer waveOutDevice = new WaveOut();
+                        var audioFileReader = new AudioFileReader(new Uri(sound.Uri).AbsolutePath);
+                        waveOutDevice.Init(audioFileReader);
                         for (var i = 0; i < user.LogicalUser.Plan.RepeatNumber; ++i)
-                            player.Play();
+
+                            waveOutDevice.Play();
                     }
                     catch
                     {
@@ -239,10 +278,10 @@ namespace FingerPrintDetectionWeb.Manager
                 var matcher = new UFMatcher { FastMode = true, nTemplateType = 2002, SecurityLevel = 4 };
                 using (var dbContext = new ApplicationDbContext())
                 {
-                    foreach (var realUser in dbContext.RealUsers)
+                    foreach (var realUser in dbContext.RealUsers.Where(m=>!m.Deleted))
                     {
                         var found = false;
-                        UFM_STATUS stat=UFM_STATUS.OK;
+                        var stat = UFM_STATUS.OK;
                         if (realUser.FirstFinger != null)
                             stat = matcher.Verify(template, template.Length, realUser.FirstFinger,
                                    realUser.FirstFinger.Length, out found);

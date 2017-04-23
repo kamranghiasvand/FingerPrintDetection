@@ -8,7 +8,7 @@ namespace ScannerDriver
     public class ScannerWrapper : IDisposable
     {
         private readonly UFScanner scanner;
-        private IScannerManager manager;
+        public IScannerManager Manager { get; }
         const int MaxTemplateSize = 1024;
         public event CaptureEventHandler CaptureEvent;
         private bool isCaptureSingleImage;
@@ -18,7 +18,7 @@ namespace ScannerDriver
         {
             get { return scanner.Timeout; }
             set { scanner.Timeout = value; }
-        } 
+        }
 
         public bool IsCapturing => scanner.IsCapturing;
         public string Id => scanner.ID;
@@ -31,9 +31,9 @@ namespace ScannerDriver
                 throw new ArgumentNullException(nameof(scanner));
             if (manager == null)
                 throw new ArgumentNullException(nameof(manager));
-            this.manager = manager;
+            Manager = manager;
             this.scanner = scanner;
-            this.scanner.nTemplateType = 2001;
+            this.scanner.nTemplateType = 2002;
             this.scanner.CaptureEvent += Scanner_CaptureEvent;
             Timeout = -1;
         }
@@ -51,18 +51,51 @@ namespace ScannerDriver
         public byte[] CaptureSingleTemplate(out string error)
         {
             isCaptureSingleImage = true;
+            var res = CaptureSingleImage(out error);
+            isCaptureSingleImage = false;
+            return res;
+        }
+
+        private byte[] CaptureSingleImage(out string error)
+        {
+            var res = new byte[0];
             try
             {
-                var status = scanner.CaptureSingleImage();
-                if (status == UFS_STATUS.OK) return ExtractTemplate(out error);
-                UFScanner.GetErrorString(status, out error);
+                var iscapturing = IsCapturing;
+                var timeout = Timeout;
+                if (iscapturing)
+                    if (!StopCapturing(out error))
+                        return new byte[0];
+                Timeout = 3000;
+                if (!ClearCaptureImageBuffer(out error))
+                    return new byte[0];
+                while (IsCapturing)
+                    Thread.Sleep(100);
+                var counter = 0;
+                while (true)
+                {
+                    if (counter >= 3)
+                        break;
+                    counter++;
+                    var status = scanner.CaptureSingleImage();
+                    if (status == UFS_STATUS.OK)
+                    {
+                        res = ExtractTemplate(out error);
+                        break;
+                    }
+                    UFScanner.GetErrorString(status, out error);
+                }
+                Timeout = timeout;
+                if (!iscapturing) return res;
+                string x;
+                StartCapturing(out x);
+                return res;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 error = ex.ToString();
+                return new byte[0];
             }
-            isCaptureSingleImage = false;
-            return new byte[0];
         }
         public bool StartCapturing(out string error)
         {
@@ -81,14 +114,14 @@ namespace ScannerDriver
             var status = scanner.AbortCapturing();
             if (status == UFS_STATUS.OK)
                 return true;
-            
+
             UFScanner.GetErrorString(status, out error);
             return false;
         }
 
         private byte[] ExtractTemplate(out string error)
         {
-            scanner.nTemplateType = 2001;
+            scanner.nTemplateType = 2002;
             var bytes = new byte[MaxTemplateSize];
             int templateSize;
             int enrollQuality;
@@ -110,14 +143,22 @@ namespace ScannerDriver
             return template;
         }
 
+        private DateTime lastEvent;
         private int Scanner_CaptureEvent(object sender, UFScannerCaptureEventArgs e)
         {
+         
             if (!IsCapturing)
                 return 1;
             if (isCaptureSingleImage)
                 return 1;
             if (!e.FingerOn)
                 return 1;
+            if ((DateTime.Now.Subtract(lastEvent)).TotalSeconds < 2)
+            {
+                lastEvent = DateTime.Now;
+                return 1;
+            }
+            lastEvent = DateTime.Now;
             string error;
             var template = ExtractTemplate(out error);
             if (template == null || template.Length == 0)
@@ -127,6 +168,7 @@ namespace ScannerDriver
                 {
                     CaptureEvent(this, template, error);
                 })).Start();
+            
             return 1;
         }
 

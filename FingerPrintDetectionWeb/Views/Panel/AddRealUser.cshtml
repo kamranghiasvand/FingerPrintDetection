@@ -1,4 +1,5 @@
 ﻿@using FingerPrintDetectionModel
+@using FingerPrintDetectionWeb.Controllers
 @using FingerPrintDetectionWeb.Models
 @using Microsoft.AspNet.Identity.Owin
 @model dynamic
@@ -49,6 +50,7 @@
         </div>
         <div class="panel-body">
             <form role="form" id="addUserForm" data-url="@Url.Action("AddRealUser", "Panel")" method="post">
+                <input type="hidden" name="Id" value="@(ViewBag.user != null ? ViewBag.user.Id : -1)"/>
                 <div class="row">
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 validation-summary-errors hidden" style="color: red;" data-valmsg-summary="true">
                     </div>
@@ -57,16 +59,23 @@
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="form-group required">
                             <label for="FirstName" class="control-label">نام</label>
-                            <input type="text" class="form-control" id="FirstName" name="FirstName" placeholder="First Name">
+                            <input type="text" class="form-control" id="FirstName" name="FirstName" placeholder="First Name" value="@((ViewBag.user != null) ? ViewBag.user.FirstName : "")">
                         </div>
                         <div class="form-group">
                             <label for="lastName" class="control-label">نام خانوادگی</label>
-                            <input type="text" class="form-control" id="lastName" name="LastName" placeholder="Last Name">
+                            <input type="text" class="form-control" id="lastName" name="LastName" placeholder="Last Name" value="@((ViewBag.user != null) ? ViewBag.user.LastName : "")">
                         </div>
                         <div class="form-group">
                             <label>تاریخ تولد</label>
+                            @{
+                                var brithday = "";
+                                if (ViewBag.user != null)
+                                {
+                                    brithday = (ViewBag.user.Birthday.ToString("yyyy/MM/dd"));
+                                }
+                            }
                             <div class="input-group">
-                                <input id="birthdayTimepicker" type="text" class="form-control required" name="Birthday">
+                                <input id="birthdayTimepicker" type="text" class="form-control required" name="Birthday" value="@brithday">
                                 <div class="input-group-addon">
                                     <i class="glyphicon glyphicon-calendar"></i>
                                 </div>
@@ -77,7 +86,7 @@
                             <select id="LogicalUserId" name="LogicalUserId" class="selecter_3 form-control" required data-selecter-options='{"cover":"true"}'>
                                 @foreach (var item in GetLogicalUserList())
                                 {
-                                    <option value="@item.Id">@(item.FirstName + " "+ item.LastName)</option>
+                                    <option value="@item.Id">@(item.FirstName + " " + item.LastName)</option>
                                 }
                             </select>
 

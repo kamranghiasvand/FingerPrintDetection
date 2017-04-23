@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace ScannerDriver
 {
@@ -24,29 +19,59 @@ namespace ScannerDriver
                 while (isRunning)
                 {
                     var c=Console.ReadLine()?.ToLower();
-                    string error;
+                    var error = "";
                     switch (c)
                     {
                         case "start":
-                            dm.Start(out error);
-                            Console.WriteLine(string.IsNullOrEmpty(error) ? "Start Success" : error);
+                            try
+                            {
+                                dm?.Start(out error);
+                                Console.WriteLine(string.IsNullOrEmpty(error) ? "Start Success" : error);
+                            }
+                            catch
+                            {
+                                // ignored
+                            }
                             break;
                         case "stop":
-                            dm.Stop(out error);
-                            Console.WriteLine(string.IsNullOrEmpty(error) ? "Stop Success" : error);
+                            try
+                            {
+                                dm?.Stop(out error);
+                                Console.WriteLine(string.IsNullOrEmpty(error) ? "Stop Success" : error);
+                            }
+                            catch
+                            {
+                                // ignored
+                            }
                             break;
                         case "capturesingleimage":
-                            var tem= dm.CaptureSingleImage(dm.GetFirstScanner().Id, out error);
-                            Console.WriteLine(string.IsNullOrEmpty(error) ? "Captured Success" : error);
+                            try
+                            {
+                                dm?.CaptureSingleImage(dm.GetFirstScanner()?.Id, out error);
+                                Console.WriteLine(string.IsNullOrEmpty(error) ? "Captured Success" : error);
+                            }
+                            catch
+                            {
+                                // ignored
+                            }
                             break;
                         case "getscannerstate":
-                            var stat = dm.GetScannersState();
-                            Console.WriteLine("Id\t\tImageQuality\tIsCapturing\tIsSensorOn\tTimeout");
-                            foreach (var s in stat)
-                            {
-                                Console.WriteLine(
-                                    $"{s.Id}\t\t{s.ImageQuality}\t{s.IsCapturing}\t{s.IsSensorOn}\t{s.Timeout}");
+                            try {
+                                if (dm != null)
+                                {
+                                    var stat = dm.GetScannersState();
+                                    Console.WriteLine("Id\t\tImageQuality\tIsCapturing\tIsSensorOn\tTimeout");
+                                    foreach (var s in stat)
+                                    {
+                                        Console.WriteLine(
+                                            $"{s.Id}\t\t{s.ImageQuality}\t{s.IsCapturing}\t{s.IsSensorOn}\t{s.Timeout}");
 
+                                    }
+                                }
+                            }
+                            catch
+                            {
+                                // ignored
                             }
                             break;
                            
@@ -67,6 +92,7 @@ namespace ScannerDriver
             }
             catch
             {
+                // ignored
             }
         }
     }

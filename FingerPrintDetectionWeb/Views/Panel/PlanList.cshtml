@@ -17,6 +17,8 @@
             <div class="">
                 <table class="table table-striped table-bordered table-hover dataTable no-footer" width="100%"
                        data-url="@Url.Action("GetPlansListAsync", "Panel")"
+                       data-removeplan="@Url.Action("DeletePlan", "Panel")"
+                       data-editplan="@Url.Action("AddPlan")"
                        id="PlandataTables"></table>
             </div>
         </div>

@@ -11,7 +11,8 @@
     };
     var settings = {
         "language": {
-            "processing": '<i style="z-index:1000" class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><span class="sr-only">Loading...</span>'
+            "processing": '<i style="z-index:1000" class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><span class="sr-only">Loading...</span>',
+            "search": "جستجو:"
         },
         serverSide: true,
         processing: true,

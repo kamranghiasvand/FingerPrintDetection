@@ -129,6 +129,10 @@
       <HintPath>..\packages\PersianDate.2.1.8\lib\net45\PersianDate.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="PersianDateTime, Version=1.1.5082.36395, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PersianDateTime.1.1.5082.36395\lib\net40\PersianDateTime.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Suprema.UFMatcher, Version=3.5.0.0, Culture=neutral">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\ScannerDriver\Dlls\Suprema.UFMatcher.dll</HintPath>

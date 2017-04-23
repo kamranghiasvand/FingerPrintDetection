@@ -11,7 +11,8 @@
     };
     var settings = {
         "language": {
-            "processing": '<i style="z-index:1000" class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><span class="sr-only">Loading...</span>'
+            "processing": '<i style="z-index:1000" class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><span class="sr-only">Loading...</span>',
+            "search": "جستجو:"
         },
         serverSide: true,
         processing: true,
@@ -70,10 +71,32 @@
                 title: "حداکثر تعداد استفاده",
                 className: "all",
                 visible: true,
-                sortable: true,
-                searchable: true,
+                sortable: false,
+                searchable: false,
                 render: function (data, type, row) {
                     return row.MaxNumberOfUse;
+                }
+            },
+            {
+                name: "StartTime",
+                title: "زمان شروع",
+                className: "all",
+                visible: true,
+                sortable: false,
+                searchable: false,
+                render: function (data, type, row) {
+                    return row.StartTime;
+                }
+            },
+            {
+                name: "EndTime",
+                title: "زمان خاتمه",
+                className: "all",
+                visible: true,
+                sortable: false,
+                searchable: false,
+                render: function (data, type, row) {
+                    return row.EndTime;
                 }
             },
             {
@@ -86,6 +109,19 @@
                 render: function (data, type, row) {
                     return row.Users.length;
                 }
+            },
+            {
+                name: 'Action',
+                title: 'عملیات',
+                className: 'all',
+                data: null,
+                sortable: false,
+                searchable: false,
+                render: function (data, type, row) {
+                    var url = $('#PlandataTables').data('editplan') + "?id=" + row.Id;
+                    return '<div class="btn btn-sm btn-danger deleteplan" data-id="' + row.Id + '"> حذف</div>'+
+                        '<a class="btn btn-sm btn-info" href="' + url + '"> ویرایش</div>';
+                }
             }
         ]
     };
@@ -96,5 +132,35 @@
         if (e.keyCode === 13) {
             userTables.ajax.reload();
         }
+    });
+    $('#PlandataTables').on('click', '.deleteplan', function (e) {
+        $('#globalLoadingModal').modal('show');
+        var url = $('#PlandataTables').data('removeplan');
+        $.ajax({
+            type: 'POST',
+            url: url,
+            async: false,
+            data: { "Id": $(e.target).data('id') },
+            success: function (data) {
+                $('#globalLoadingModal').modal('hide');
+                if (data.status === 'success') {
+                    $('#globalLoadingModal').modal('hide');
+                    $('.validation-summary-errors').addClass('hidden').empty();
+                } else if (data.status === 'fail') {
+                    $('#globalLoadingModal').modal('hide');
+                    $('.validation-summary-errors').empty().append('<ul class="validation-summary-errors-list"></ul>').removeClass('hidden');
+                    for (var cnt = 0; cnt < data.errors.length; cnt++) {
+                        form.find('.validation-summary-errors-list').append('<li>' + data.errors[cnt] + '</li>');
+                    }
+
+                }
+                userTables.ajax.reload();
+                // $("#answers").html(response);
+            },
+            error: function (errors) {
+
+                $('#globalLoadingModal').modal('hide');
+            }
+        });
     });
 });

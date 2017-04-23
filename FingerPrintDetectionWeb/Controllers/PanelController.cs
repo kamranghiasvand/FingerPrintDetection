@@ -29,8 +29,12 @@ namespace FingerPrintDetectionWeb.Controllers
         {
             return View();
         }
-        public ActionResult AddLogicalUser()
+        public ActionResult AddLogicalUser(long id = -1)
         {
+            if (id != -1)
+            {
+                ViewBag.user = DbContext.LogicalUsers.FirstOrDefault(m => m.Id == id && !m.Deleted);
+            }
             return View();
         }
         public async Task<JsonResult> GetLogicalUsersListAsync(DatatablesParam paramView)
@@ -52,11 +56,12 @@ namespace FingerPrintDetectionWeb.Controllers
                 foreach (var user in users.Skip(paramView.start).Take(paramView.length))
                 {
                     var row = new Dictionary<string, object>
-                     {
-                         {"Id", user.Id},
-                         {"FirstName", user.FirstName},
-                         {"LastName", user.LastName}
-                     };
+                    {
+                        {"Id", user.Id},
+                        {"FirstName", user.FirstName},
+                        {"LastName", user.LastName},
+                        {"PlanName", (user.Plan!=null&&!user.Plan.Deleted?user.Plan.Name:"")}
+                    };
                     data.Add(row);
                 }
             });
@@ -75,6 +80,7 @@ namespace FingerPrintDetectionWeb.Controllers
                         res.errors.Add(err);
                     return Json(res);
                 }
+
                 if (model.SoundTrackId < 0)
                 {
                     if (soundFile == null)
@@ -121,6 +127,7 @@ namespace FingerPrintDetectionWeb.Controllers
 
                     var reader = new Mp3FileReader(path);
                     var duration = reader.TotalTime;
+                    reader.Close();
                     DbContext.SoundTracks.Add(new SoundTrack
                     {
                         Duration = duration.Ticks,
@@ -134,7 +141,22 @@ namespace FingerPrintDetectionWeb.Controllers
                 }
                 var plan = DbContext.Plans.First(m => m.Id == model.PlanId);
                 var soundTrack = DbContext.SoundTracks.First(m => m.Id == model.SoundTrackId);
-                var user = new LogicalUser
+                LogicalUser user;
+                if (model.Id != -1)
+                {
+                    user = DbContext.LogicalUsers.FirstOrDefault(m => m.Id == model.Id && !m.Deleted);
+                    if (user != null)
+                    {
+                        user.Plan = plan;
+                        user.Sound = soundTrack;
+                        user.FirstName = model.FirstName;
+                        user.LastName = model.LastName;
+                        DbContext.Entry(user).State = System.Data.Entity.EntityState.Modified;
+                        DbContext.SaveChanges();
+                        return Json(new { status = "success", address = Url.Action("LogicalUserList", "Panel") });
+                    }
+                }
+                user = new LogicalUser
                 {
                     Plan = plan,
                     Sound = soundTrack,
@@ -143,6 +165,7 @@ namespace FingerPrintDetectionWeb.Controllers
                 };
                 DbContext.LogicalUsers.Add(user);
                 DbContext.SaveChanges();
+
             }
             catch (Exception)
             {
@@ -150,6 +173,26 @@ namespace FingerPrintDetectionWeb.Controllers
                 return Json(res);
             }
             return Json(new { status = "success", address = Url.Action("LogicalUserList", "Panel") });
+        }
+        [HttpPost]
+        public JsonResult DeleteLogicalUser(long id)
+        {
+            try
+            {
+                var user = DbContext.LogicalUsers.FirstOrDefault(m => m.Id == id && !m.Deleted);
+                if (user == null) return Json(new { status = "success", errors = new string[0] });
+                user.Deleted = true;
+                DbContext.Entry(user).State = System.Data.Entity.EntityState.Modified;
+                DbContext.SaveChanges();
+                return Json(new { status = "success", errors = new string[0] });
+
+            }
+            catch
+            {
+                var res = new { status = "fail", errors = new[] { "خطایی در سرور رخ داده است" } };
+                return Json(res);
+            }
+
         }
         #endregion
 
@@ -159,8 +202,12 @@ namespace FingerPrintDetectionWeb.Controllers
             return View();
         }
 
-        public ActionResult AddRealUser()
+        public ActionResult AddRealUser(long id = -1)
         {
+            if (id != -1)
+            {
+                ViewBag.user = DbContext.RealUsers.FirstOrDefault(m => m.Id == id && !m.Deleted);
+            }
             return View();
 
         }
@@ -202,7 +249,7 @@ namespace FingerPrintDetectionWeb.Controllers
         [HttpPost]
         public async Task<JsonResult> AddRealUser(RealUserViewModel model)
         {
-            return await Task.Run<JsonResult>(() =>
+            return await Task.Run(() =>
             {
                 try
                 {
@@ -213,28 +260,43 @@ namespace FingerPrintDetectionWeb.Controllers
                             res.errors.Add(err);
                         return Json(res);
                     }
-                    var logicaluser = DbContext.LogicalUsers.FirstOrDefault(m => m.Id == model.LogicalUserId);
+                    var logicaluser = DbContext.LogicalUsers.FirstOrDefault(m => m.Id == model.LogicalUserId && !m.Deleted);
                     if (logicaluser == null)
                     {
-                        var res = new { status = "fail", errors = new [] { "کابر منطقی را انتحاب کنید" } };
+                        var res = new { status = "fail", errors = new[] { "کابر منطقی را انتحاب کنید" } };
                         return Json(res);
                     }
-                    var realUser = new RealUser
+                    RealUser realUser;
+                    if (model.Id != -1)
+                    {
+                        realUser = DbContext.RealUsers.FirstOrDefault(m => m.Id == model.Id && !m.Deleted);
+                        if (realUser != null)
+                        {
+                            realUser.FirstName = model.FirstName;
+                            realUser.LastName = model.LastName;
+                            realUser.LogicalUser = logicaluser;
+                            realUser.Birthday = ConvertPersianToGregorian(model.Birthday);
+                            DbContext.Entry(realUser).State = System.Data.Entity.EntityState.Modified;
+                            DbContext.SaveChanges();
+                            return Json(new { status = "success", address = Url.Action("RealUserList", "Panel") });
+                        }
+                    }
+                    realUser = new RealUser
                     {
                         FirstName = model.FirstName,
                         LastName = model.LastName,
                         LogicalUser = logicaluser,
-                        Birthday = ConvertPersianToEnglish(model.Birthday)
+                        Birthday = ConvertPersianToGregorian(model.Birthday)
                     };
                     DbContext.RealUsers.Add(realUser);
                     DbContext.SaveChanges();
                 }
                 catch (Exception)
                 {
-                    var res = new { status = "fail", errors = new [] { "خطایی در سرور رخ داده است" } };
+                    var res = new { status = "fail", errors = new[] { "خطایی در سرور رخ داده است" } };
                     return Json(res);
                 }
-                return Json(new { status = "success", address = Url.Action("LogicalUserList", "Panel") });
+                return Json(new { status = "success", address = Url.Action("RealUserList", "Panel") });
             });
         }
 
@@ -243,31 +305,31 @@ namespace FingerPrintDetectionWeb.Controllers
         {
             try
             {
-                if (!(new[] {0,1, 2}.Contains(witchFinger)))
-                    return Json(new {status = "fail", errors = new[] {"انگشت مورد نظر را انتخاب کنید"}});
-                var user = DbContext.RealUsers.FirstOrDefault(m => m.Id == userId);
+                if (!(new[] { 0, 1, 2 }.Contains(witchFinger)))
+                    return Json(new { status = "fail", errors = new[] { "انگشت مورد نظر را انتخاب کنید" } });
+                var user = DbContext.RealUsers.FirstOrDefault(m => m.Id == userId && !m.Deleted);
                 if (user == null)
-                    return Json(new {status = "fail", errors = new[] {"کاربر مورد نظر را انتخاب کنید"}});
+                    return Json(new { status = "fail", errors = new[] { "کاربر مورد نظر را انتخاب کنید" } });
                 var status = await FingerPrintManager.GetScannersState();
-                if(status.Count==0)
+                if (status.Count == 0)
                     return Json(new { status = "fail", errors = new[] { "اسکنری پیدا نشد" } });
                 var error = "";
                 var template = await FingerPrintManager.CaptureSingleTemplate(status.First().Id, error);
                 if (template == null || template.Length == 0)
-                    return Json(new {status = "fail", errors = new[] {"انگشت کاربر تشخیص داده نشد"}});
-                if(witchFinger==0)
-                user.FirstFinger = template;
+                    return Json(new { status = "fail", errors = new[] { "انگشت کاربر تشخیص داده نشد" } });
+                if (witchFinger == 0)
+                    user.FirstFinger = template;
                 if (witchFinger == 1)
                     user.SecondFinger = template;
                 if (witchFinger == 2)
                     user.ThirdFinger = template;
                 DbContext.Entry(user).State = System.Data.Entity.EntityState.Modified;
                 DbContext.SaveChanges();
-                return Json(new {status = "success"});
+                return Json(new { status = "success" });
             }
             catch
             {
-                var res = new { status = "fail", errors = new []{ "خطایی در سرور رخ داده است" } };
+                var res = new { status = "fail", errors = new[] { "خطایی در سرور رخ داده است" } };
                 return Json(res);
             }
 
@@ -277,10 +339,25 @@ namespace FingerPrintDetectionWeb.Controllers
         [HttpPost]
         public JsonResult DeleteRealUser(long id)
         {
-            return null;
+            try
+            {
+                var user = DbContext.RealUsers.FirstOrDefault(m => m.Id == id && !m.Deleted);
+                if (user == null) return Json(new { status = "success", errors = new string[0] });
+                user.Deleted = true;
+                DbContext.Entry(user).State = System.Data.Entity.EntityState.Modified;
+                DbContext.SaveChanges();
+                return Json(new { status = "success", errors = new string[0] });
+
+            }
+            catch
+            {
+                var res = new { status = "fail", errors = new[] { "خطایی در سرور رخ داده است" } };
+                return Json(res);
+            }
 
         }
         #endregion
+
         #endregion
 
         #region Plan Management
@@ -288,8 +365,12 @@ namespace FingerPrintDetectionWeb.Controllers
         {
             return View();
         }
-        public ActionResult AddPlan()
+        public ActionResult AddPlan(long id = -1)
         {
+            if (id != -1)
+            {
+                ViewBag.plan = DbContext.Plans.FirstOrDefault(m => m.Id == id && !m.Deleted);
+            }
             return View();
         }
         public async Task<JsonResult> GetPlansListAsync(DatatablesParam paramView)
@@ -316,11 +397,13 @@ namespace FingerPrintDetectionWeb.Controllers
                         {"Name", plan.Name},
                         {"RepeatNumber", plan.RepeatNumber},
                         {"MaxNumberOfUse", plan.MaxNumberOfUse},
+                        {"StartTime", ConvertGregorianToPersian(plan.StartTime.ToString(CultureInfo.InvariantCulture))},
+                        {"EndTime", ConvertGregorianToPersian(plan.StartTime.ToString(CultureInfo.InvariantCulture))},
                         {"Description", plan.Description},
                         {"Users", new List<object>()}
                     };
                     if (plan.Users != null)
-                        foreach (var user in plan.Users)
+                        foreach (var user in plan.Users.Where(m => !m.Deleted))
                         {
                             ((List<object>)row["Users"]).Add(new { user.FirstName, user.LastName });
                         }
@@ -342,7 +425,24 @@ namespace FingerPrintDetectionWeb.Controllers
                         res.errors.Add(err);
                     return Json(res);
                 }
-                var plan = new Plan
+                Plan plan;
+                if (model.Id != -1)
+                {
+                    plan = DbContext.Plans.FirstOrDefault(m => m.Id == model.Id && !m.Deleted);
+                    if (plan != null)
+                    {
+                        plan.Description = model.Description;
+                        plan.MaxNumberOfUse = model.MaxUserCount;
+                        plan.Name = model.Name;
+                        plan.RepeatNumber = model.RepeatNumber;
+                        plan.StartTime = model.StartTime;
+                        plan.EndTime = model.EndTime;
+                        DbContext.Entry(plan).State = System.Data.Entity.EntityState.Modified;
+                        DbContext.SaveChanges();
+                        return Json(new { status = "success", address = Url.Action("PlanList", "Panel") });
+                    }
+                }
+                plan = new Plan
                 {
                     Description = model.Description,
                     MaxNumberOfUse = model.MaxUserCount,
@@ -363,7 +463,26 @@ namespace FingerPrintDetectionWeb.Controllers
             }
         }
 
+        [HttpPost]
+        public JsonResult DeletePlan(long id)
+        {
+            try
+            {
+                var plan = DbContext.Plans.FirstOrDefault(m => m.Id == id && !m.Deleted);
+                if (plan == null) return Json(new { status = "success", errors = new string[0] });
+                plan.Deleted = true;
+                DbContext.Entry(plan).State = System.Data.Entity.EntityState.Modified;
+                DbContext.SaveChanges();
+                return Json(new { status = "success", errors = new string[0] });
 
+            }
+            catch
+            {
+                var res = new { status = "fail", errors = new[] { "خطایی در سرور رخ داده است" } };
+                return Json(res);
+            }
+
+        }
         #endregion
 
         #region Scanner Manager
@@ -443,7 +562,7 @@ namespace FingerPrintDetectionWeb.Controllers
         }
 
         #endregion
-        public static DateTime ConvertPersianToEnglish(string persianDate)
+        public static DateTime ConvertPersianToGregorian(string persianDate)
         {
             string[] formats = { "yyyy/MM/dd", "yyyy/M/d", "yyyy/MM/d", "yyyy/M/dd" };
             var d1 = DateTime.ParseExact(persianDate, formats,
@@ -451,6 +570,13 @@ namespace FingerPrintDetectionWeb.Controllers
             var date = new PersianCalendar();
             var dt = date.ToDateTime(d1.Year, d1.Month, d1.Day, 0, 0, 0, 0, 0);
             return dt;
+        }
+
+        public static string ConvertGregorianToPersian(string gregorianDate)
+        {
+
+            var d = DateTime.Parse(gregorianDate);
+            return (new PersianDateTime(d)).ToString("yyyy/MM/dd");
         }
     }
 

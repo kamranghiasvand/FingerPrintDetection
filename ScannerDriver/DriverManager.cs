@@ -143,24 +143,8 @@ namespace ScannerDriver
                 }
                 var scanner = Scanners.FirstOrDefault(m => m.Key == scannerId);
                 if (scanner.Value != null)
-                {
-                    var s = scanner.Value;
-                    var iscapturing = s.IsCapturing;
-                    var timeout = s.Timeout;
-                    if (iscapturing)
-                        if (!s.StopCapturing(out error))
-                            return new byte[0];
-                    if (!s.ClearCaptureImageBuffer(out error))
-                        return new byte[0];
-                    s.Timeout = 3000;
-                    var res = scanner.Value.CaptureSingleTemplate(out error);
-                    s.Timeout = timeout;
-                    if (!iscapturing) return res;
-                    string x;
-                    s.StartCapturing(out x);
-                    return res;
-
-                }
+                    return scanner.Value.CaptureSingleTemplate(out error);
+                
                 error = "Scanner not found";
                 return new byte[0];
             }

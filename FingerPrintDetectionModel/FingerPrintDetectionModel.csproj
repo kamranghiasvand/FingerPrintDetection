@@ -46,6 +46,10 @@
       <HintPath>..\packages\Microsoft.AspNet.Identity.EntityFramework.2.2.1\lib\net45\Microsoft.AspNet.Identity.EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="NAudio, Version=1.8.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NAudio.1.8.0\lib\net35\NAudio.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -58,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationDbContext.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="LogicalUser.cs" />
     <Compile Include="LoginUser.cs" />
     <Compile Include="Migrations\201704160607265_1st.cs" />
@@ -79,6 +84,14 @@
     <Compile Include="Migrations\201704220515266_5th.cs" />
     <Compile Include="Migrations\201704220515266_5th.Designer.cs">
       <DependentUpon>201704220515266_5th.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201704230624290_6th.cs" />
+    <Compile Include="Migrations\201704230624290_6th.Designer.cs">
+      <DependentUpon>201704230624290_6th.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201704231055000_7th.cs" />
+    <Compile Include="Migrations\201704231055000_7th.Designer.cs">
+      <DependentUpon>201704231055000_7th.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Plan.cs" />
@@ -105,6 +118,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201704220515266_5th.resx">
       <DependentUpon>201704220515266_5th.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201704230624290_6th.resx">
+      <DependentUpon>201704230624290_6th.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201704231055000_7th.resx">
+      <DependentUpon>201704231055000_7th.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
