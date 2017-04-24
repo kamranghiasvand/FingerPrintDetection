@@ -172,7 +172,7 @@ namespace FingerPrintDetectionWeb.Manager
                         dbContext.Logs.Add(log);
                         dbContext.SaveChanges();
                     }
-                    catch
+                    catch (Exception)
                     {
                         // ignored
                     }
@@ -189,26 +189,29 @@ namespace FingerPrintDetectionWeb.Manager
                     var sound = user.LogicalUser.Sound;
                     try
                     {
-                        IWavePlayer waveOutDevice = new WaveOut();
-                        var audioFileReader = new AudioFileReader(new Uri(sound.Uri).AbsolutePath);
-                        waveOutDevice.Init(audioFileReader);
-                        for (var i = 0; i < user.LogicalUser.Plan.RepeatNumber; ++i)
+                        using (IWavePlayer waveOutDevice = new WaveOut())
                         {
-                            waveOutDevice.Play();
-                            while (waveOutDevice.PlaybackState == PlaybackState.Playing)
+                            var audioFileReader = new AudioFileReader(new Uri(sound.Uri).AbsolutePath);
+                            waveOutDevice.Init(audioFileReader);
+                            for (var i = 0; i < user.LogicalUser.Plan.RepeatNumber; ++i)
                             {
-                                Thread.Sleep(100);
+                                waveOutDevice.Play();
+                                while (waveOutDevice.PlaybackState == PlaybackState.Playing)
+                                {
+                                    Thread.Sleep(100);
+                                }
+                                audioFileReader.Seek(0, SeekOrigin.Begin);
+
                             }
-                            audioFileReader.Seek(0, SeekOrigin.Begin);
                         }
                     }
-                    catch
+                    catch (Exception)
                     {
                         // ignored
                     }
                 }
             }
-            catch
+            catch (Exception)
             {
                 // ignored
             }

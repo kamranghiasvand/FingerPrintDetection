@@ -21,6 +21,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -108,7 +109,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="Dlls\hasp_windows.dll" />
+    <Content Include="Dlls\hasp_windows_x64.dll" />
     <Content Include="Dlls\Suprema.UFDatabase.dll" />
     <Content Include="Dlls\Suprema.UFMatcher.dll" />
     <Content Include="Dlls\Suprema.UFScanner.dll" />

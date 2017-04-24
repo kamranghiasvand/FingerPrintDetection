@@ -43,7 +43,6 @@ namespace FingerPrintDetectionWeb.Controllers
                 };
                 Process.Start(info);
             }
-          //  ScannerManager.Create().Start();
         }
     }
 }
