@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Web;
 using System.Web.Mvc;
 using FingerPrintDetectionModel;
@@ -29,17 +30,20 @@ namespace FingerPrintDetectionWeb.Controllers
 
         public BaseController()
         {
-            if (Process.GetProcessesByName("ScannerDriver").Length == 0&& Process.GetProcessesByName("ScannerDriver.vshost").Length == 0)
+            if (Process.GetProcessesByName("ScannerDriver").Length == 0 && Process.GetProcessesByName("ScannerDriver.vshost").Length == 0)
             {
+                string path = Path.Combine(System.Web.HttpContext.Current.Server.MapPath(@"~/bin"), "ScannerDriver.exe");
+
                 var info = new ProcessStartInfo
                 {
-                    UseShellExecute = true,
-                    FileName = AppDomain.CurrentDomain.BaseDirectory + "bin\\ScannerDriver.exe",
+                    CreateNoWindow=false,
+                    WindowStyle=ProcessWindowStyle.Normal,
+                    FileName = path
 
                 };
                 Process.Start(info);
             }
-
+          //  ScannerManager.Create().Start();
         }
     }
 }

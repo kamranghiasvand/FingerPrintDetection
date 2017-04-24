@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScannerDriver", "ScannerDri
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FingerPrintDetectionModel", "FingerPrintDetectionModel\FingerPrintDetectionModel.csproj", "{772A4BF9-0039-43F0-9167-581BCD1A7A58}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release", "Release", "{C28C2063-CC1D-4F29-9DF6-01B8A505CFF9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -10,8 +10,14 @@ namespace ScannerDriver
         {
             try
             {
+                Console.WriteLine("starting...");
                 if (Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName).Length > 1)
+                {
+                    Console.WriteLine("Another instance is running...");
+                    Console.WriteLine("exiting...");
                     return;
+                    
+                }
                 var cmd = CommandRunner.Create();
                 cmd.Start(); 
                 var dm=DriverManager.Create(cmd);
@@ -90,9 +96,10 @@ namespace ScannerDriver
                     
                 cmd.Stop();
             }
-            catch
+            catch( Exception ex)
             {
-                // ignored
+
+                Console.WriteLine(ex);
             }
         }
     }

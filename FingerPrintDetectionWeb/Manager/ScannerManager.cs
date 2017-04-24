@@ -30,8 +30,9 @@ namespace FingerPrintDetectionWeb.Manager
                 {
                     var info = new ProcessStartInfo
                     {
-                        UseShellExecute = true,
-                        FileName = AppDomain.CurrentDomain.BaseDirectory + "bin\\ScannerDriver.exe",
+                        CreateNoWindow = false,
+                        WindowStyle = ProcessWindowStyle.Normal,
+                        FileName = AppDomain.CurrentDomain.BaseDirectory + "bin\\ScannerDriver.exe"
 
                     };
                     Process.Start(info);
