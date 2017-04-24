@@ -153,7 +153,7 @@ namespace FingerPrintDetectionWeb.Manager
                             RealUserId = user.Id,
                             Time = dtn,
                             Income = true,
-                            LogicalUserId = (long) user.LogicalUser?.Id,
+                            LogicalUserId = (long)user.LogicalUser?.Id,
                             PlanId = user.LogicalUser?.Plan?.Id ?? -1
 
                         };
@@ -192,8 +192,14 @@ namespace FingerPrintDetectionWeb.Manager
                         var audioFileReader = new AudioFileReader(new Uri(sound.Uri).AbsolutePath);
                         waveOutDevice.Init(audioFileReader);
                         for (var i = 0; i < user.LogicalUser.Plan.RepeatNumber; ++i)
-
+                        {
                             waveOutDevice.Play();
+                            while (waveOutDevice.PlaybackState == PlaybackState.Playing)
+                            {
+                                Thread.Sleep(100);
+                            }
+                            audioFileReader.Seek(0, SeekOrigin.Begin);
+                        }
                     }
                     catch
                     {
@@ -278,7 +284,7 @@ namespace FingerPrintDetectionWeb.Manager
                 var matcher = new UFMatcher { FastMode = true, nTemplateType = 2002, SecurityLevel = 4 };
                 using (var dbContext = new ApplicationDbContext())
                 {
-                    foreach (var realUser in dbContext.RealUsers.Where(m=>!m.Deleted))
+                    foreach (var realUser in dbContext.RealUsers.Where(m => !m.Deleted))
                     {
                         var found = false;
                         var stat = UFM_STATUS.OK;
@@ -322,7 +328,7 @@ namespace FingerPrintDetectionWeb.Manager
                 return;
             if (disposing)
             {
-                IsRunning = false;
+                Stop();
             }
             disposed = true;
         }

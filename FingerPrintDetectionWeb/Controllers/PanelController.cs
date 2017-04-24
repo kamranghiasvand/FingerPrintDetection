@@ -397,8 +397,8 @@ namespace FingerPrintDetectionWeb.Controllers
                         {"Name", plan.Name},
                         {"RepeatNumber", plan.RepeatNumber},
                         {"MaxNumberOfUse", plan.MaxNumberOfUse},
-                        {"StartTime", ConvertGregorianToPersian(plan.StartTime.ToString(CultureInfo.InvariantCulture))},
-                        {"EndTime", ConvertGregorianToPersian(plan.StartTime.ToString(CultureInfo.InvariantCulture))},
+                        {"StartTime", ConvertGregorianToPersian(plan.StartTime.ToString(CultureInfo.InvariantCulture),"yyyy/MM/dd")},
+                        {"EndTime", ConvertGregorianToPersian(plan.StartTime.ToString(CultureInfo.InvariantCulture),"yyyy/MM/dd")},
                         {"Description", plan.Description},
                         {"Users", new List<object>()}
                     };
@@ -572,11 +572,11 @@ namespace FingerPrintDetectionWeb.Controllers
             return dt;
         }
 
-        public static string ConvertGregorianToPersian(string gregorianDate)
+        public static string ConvertGregorianToPersian(string gregorianDate, string format)
         {
 
             var d = DateTime.Parse(gregorianDate);
-            return (new PersianDateTime(d)).ToString("yyyy/MM/dd");
+            return (new PersianDateTime(d)).ToString(format);
         }
     }
 
