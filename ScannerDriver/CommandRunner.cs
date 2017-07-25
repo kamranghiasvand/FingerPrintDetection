@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using Common.Logging;
 using Newtonsoft.Json;
 
 namespace ScannerDriver
@@ -19,37 +20,48 @@ namespace ScannerDriver
         private readonly TcpListener listener = new TcpListener(IPAddress.Parse("127.0.0.1"), 1468);
         private readonly IScannerManager scannerManager;
         private static CommandRunner instance;
+        private ILog Log = LogManager.GetLogger(typeof(CommandRunner));
         public bool IsRunning { get; private set; }
 
         private CommandRunner()
         {
+            Log.Debug("New Instance Creating");
             scannerManager = DriverManager.Create(this);
+            Log.Debug("New Instance Created");
 
         }
 
         public static CommandRunner Create()
         {
+
             if (instance != null)
                 return instance;
+
             instance = new CommandRunner();
             return instance;
         }
         public void Start()
         {
+            Log.Debug("Starting");
             if (IsRunning)
                 return;
             worker = new Thread(ThreadWorker) { IsBackground = false };
             IsRunning = true;
             worker.Start();
+            Log.Debug("Started");
         }
         public void Stop()
         {
+            Log.Debug("Stopping");
             if (!IsRunning)
                 return;
             IsRunning = false;
             string mess;
             scannerManager.Stop(out mess);
+            if (!string.IsNullOrEmpty(mess))
+                Log.Error(mess);
             worker.Join();
+            Log.Debug("Stopped");
         }
         private void ThreadWorker()
         {
@@ -68,70 +80,104 @@ namespace ScannerDriver
 
         private void ProccessRequest(TcpClient client)
         {
+
             if (client == null)
                 return;
+            Log.Debug("New Request Received From: " + client.Client.LocalEndPoint);
+            Log.Debug("Processing Request");
             if (!client.Connected)
             {
+                Log.Debug("client Disconnected");
                 return;
             }
-            while (client.Connected)
+            if (client.Connected)
             {
                 try
                 {
-                    if (client.Available <= 0)
-                    {
+                    while (client.Available <= 0)
                         Thread.Sleep(200);
-                        continue;
-                    }
+
+                    Log.Debug("Get Client Streams");
                     var reader = new StreamReader(client.GetStream());
                     var writer = new StreamWriter(client.GetStream());
+                    Log.Debug("De-serializing Request");
                     var request = JsonConvert.DeserializeObject<CommandRequest>(reader.ReadLine());
+                    Log.Debug(request);
                     byte[] template = null;
                     List<ScannerState> scannerState = new List<ScannerState>();
                     var mess = "";
                     switch (request.Name)
                     {
                         case CommandName.Start:
+                            Log.Debug("Command Name Is 'Start'");
+                            Log.Debug("Starting Manager");
                             scannerManager.Start(out mess);
+                            if (!string.IsNullOrEmpty(mess))
+                                Log.Error(mess);
                             break;
                         case CommandName.Stop:
+                            Log.Debug("Command Name Is 'Stop'");
+                            Log.Debug("Stopping Manager");
                             scannerManager.Stop(out mess);
+                            if (!string.IsNullOrEmpty(mess))
+                                Log.Error(mess);
                             break;
                         case CommandName.CaptureSingleImage:
+                            Log.Debug("Command Name Is 'CaptureSingleImage'");
+                            Log.Debug("Capturing Single Image");
                             var scannerId = "";
-                           foreach (var item in request.Arguments.Where(item => item.Name == "ScannerId"))
-                           {
-                               scannerId = (string)item.Value;
-                               break;
-                           }
+                            Log.Debug("Finding Scanner Id");
+                            foreach (var item in request.Arguments.Where(item => item.Name == "ScannerId"))
+                            {
+                                scannerId = (string)item.Value;
+                                break;
+                            }
                             if (scannerId == "")
                             {
+                                Log.Info("Scanner Id is empty");
                                 mess = "scannerId is empty";
                                 break;
                             }
-                            template= scannerManager.CaptureSingleImage(scannerId,out mess);
+                            template = scannerManager.CaptureSingleImage(scannerId, out mess);
+                            if (!string.IsNullOrEmpty(mess))
+                                Log.Error(mess);
                             break;
                         case CommandName.GetScannerState:
-                            scannerState= scannerManager.GetScannersState();
+                            Log.Debug("Command Name Is 'GetScannerState'");
+                            Log.Debug("Getting Scanners State");
+                            scannerState = scannerManager.GetScannersState();
+                            Log.Debug("Getting Scanners State done");
                             break;
                         case CommandName.Exit:
+                            Log.Debug("Command Name Is 'Exit'");
                             Stop();
                             break;
                     }
-                    var res = new CommandResponse { Status = string.IsNullOrEmpty(mess), Message = mess,Template=template,ScannersState = scannerState };
+                    Log.Debug("Creating Response");
+                    var res = new CommandResponse { Status = string.IsNullOrEmpty(mess), Message = mess, Template = template, ScannersState = scannerState };
+                    Log.Debug(res);
                     writer.WriteLine(JsonConvert.SerializeObject(res));
                     writer.Flush();
                     writer.Close();
                     client.Close();
+                    Log.Debug("Processing Request Is Done");
 
                 }
                 catch (Exception ex)
                 {
-                    var res = new CommandResponse { Status = false, Message = ex.ToString(),Template=new byte[0] };
-                    var writer = new StreamWriter(client.GetStream());
-                    writer.WriteLine(JsonConvert.SerializeObject(res));
-                    writer.Flush();
-                    client.Close();
+                    Log.Error(ex);
+                    try
+                    {
+                        var res = new CommandResponse { Status = false, Message = ex.ToString(), Template = new byte[0] };
+                        var writer = new StreamWriter(client.GetStream());
+                        writer.WriteLine(JsonConvert.SerializeObject(res));
+                        writer.Flush();
+                        client.Close();
+                    }
+                    catch(Exception e)
+                    {
+                        Log.Error(e);
+                    }
                 }
             }
 
@@ -139,7 +185,7 @@ namespace ScannerDriver
 
         public void SendCapture(CommandResponse response)
         {
-            
+
             try
             {
                 var client = new TcpClient();
@@ -150,9 +196,9 @@ namespace ScannerDriver
                 writer.Close();
                 client.Close();
             }
-            catch
+            catch(Exception ex)
             {
-                // ignored
+                Log.Error(ex);
             }
         }
     }
