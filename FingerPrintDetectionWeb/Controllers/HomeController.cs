@@ -23,6 +23,7 @@ namespace FingerPrintDetectionWeb.Controllers
 
             await Task.Run(() =>
             {
+                try { 
                 if (paramView == null)
                     paramView = new DatatablesParam();
                 recordsTotal = DbContext.Logs.Count(m => !m.Deleted);
@@ -62,6 +63,11 @@ namespace FingerPrintDetectionWeb.Controllers
                     row.Add("Plan", plan != null ? plan.Name : "");
 
                     data.Add(row);
+                }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex);
                 }
             });
             return Json(new { paramView.draw, recordsTotal, recordsFiltered, data }, JsonRequestBehavior.AllowGet);

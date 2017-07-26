@@ -18,7 +18,6 @@ namespace ScannerDriver
         {
             try
             {
-
                 Console.WriteLine("starting...");
                 Log.Debug("Starting...");
                 if (Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName).Length > 1)
@@ -33,7 +32,7 @@ namespace ScannerDriver
 
                 var cmd = CommandRunner.Create();
                 cmd.Start();
-                var dm = DriverManager.Create(cmd);
+                var dm = DriverManager.Create();
                 var isRunning = true;
                 while (isRunning)
                 {
@@ -45,7 +44,7 @@ namespace ScannerDriver
                         case "start":
                             try
                             {
-                                Log.Debug("Command is 'start'");
+                                Log.Debug("Command is 'Start'");
                                 dm?.Start(out error);
                                 Console.WriteLine(string.IsNullOrEmpty(error) ? "Start Success" : error);
                                 if (string.IsNullOrEmpty(error)) Log.Debug("Start Success");
@@ -61,7 +60,7 @@ namespace ScannerDriver
                         case "stop":
                             try
                             {
-                                Log.Debug("Command is 'stop'");
+                                Log.Debug("Command is 'Stop'");
                                 dm?.Stop(out error);
                                 Console.WriteLine(string.IsNullOrEmpty(error) ? "Stop Success" : error);
                                 if (string.IsNullOrEmpty(error)) Log.Debug("Stop Success");
@@ -76,7 +75,7 @@ namespace ScannerDriver
                         case "capturesingleimage":
                             try
                             {
-                                Log.Debug("Command is 'capturesingleimage");
+                                Log.Debug("Command is 'CaptureSingleImage");
                                 dm?.CaptureSingleImage(dm.GetFirstScanner()?.Id, out error);
                                 Console.WriteLine(string.IsNullOrEmpty(error) ? "Captured Success" : error);
                                 if (string.IsNullOrEmpty(error)) Log.Debug("Captured Success");
@@ -91,7 +90,7 @@ namespace ScannerDriver
                         case "getscannerstate":
                             try
                             {
-                                Log.Debug("Command is 'getscannerstate'");
+                                Log.Debug("Command is 'GetScannerState'");
                                 if (dm != null)
                                 {
                                     var stat = dm.GetScannersState();

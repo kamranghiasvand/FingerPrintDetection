@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Threading;
+using Common.Logging;
 using Suprema;
 
 namespace ScannerDriver
 {
     public delegate void CaptureEventHandler(ScannerWrapper sender, byte[] template, string error);
-    public class ScannerWrapper : IDisposable
+    public sealed class ScannerWrapper : IDisposable
     {
         private readonly UFScanner scanner;
         public IScannerManager Manager { get; }
@@ -13,6 +14,7 @@ namespace ScannerDriver
         public event CaptureEventHandler CaptureEvent;
         private bool isCaptureSingleImage;
         public int ImageQuality { get; set; } = 40;
+        public readonly ILog Log = LogManager.GetLogger(typeof(ScannerWrapper));
 
         public int Timeout
         {
@@ -61,6 +63,7 @@ namespace ScannerDriver
             var res = new byte[0];
             try
             {
+                Log.Debug("Single Image Capturing ");
                 var iscapturing = IsCapturing;
                 var timeout = Timeout;
                 if (iscapturing)
@@ -89,10 +92,12 @@ namespace ScannerDriver
                 if (!iscapturing) return res;
                 string x;
                 StartCapturing(out x);
+                Log.Debug("Single Image Captured ");
                 return res;
             }
             catch (Exception ex)
             {
+                Log.Error(ex);
                 error = ex.ToString();
                 return new byte[0];
             }
@@ -121,6 +126,7 @@ namespace ScannerDriver
 
         private byte[] ExtractTemplate(out string error)
         {
+            Log.Debug("Template Extracting");
             scanner.nTemplateType = 2002;
             var bytes = new byte[MaxTemplateSize];
             int templateSize;
@@ -140,20 +146,21 @@ namespace ScannerDriver
             for (var i = 0; i < templateSize; i++)
                 template[i] = bytes[i];
             error = "";
+            Log.Debug("Template Extracted");
             return template;
         }
 
         private DateTime lastEvent;
         private int Scanner_CaptureEvent(object sender, UFScannerCaptureEventArgs e)
         {
-         
+            
             if (!IsCapturing)
                 return 1;
             if (isCaptureSingleImage)
                 return 1;
             if (!e.FingerOn)
                 return 1;
-            if ((DateTime.Now.Subtract(lastEvent)).TotalSeconds < 2)
+            if (DateTime.Now.Subtract(lastEvent).TotalSeconds < 2)
             {
                 lastEvent = DateTime.Now;
                 return 1;
@@ -163,20 +170,25 @@ namespace ScannerDriver
             var template = ExtractTemplate(out error);
             if (template == null || template.Length == 0)
                 return 1;
+            Log.Debug("New Capture Event Raised");
             if (CaptureEvent != null)
-                (new Thread(() =>
+                new Thread(() =>
                 {
                     CaptureEvent(this, template, error);
-                })).Start();
+                }).Start();
             
             return 1;
         }
-
+        public override string ToString()
+        {
+            return $"Type ScannerWrapper  {{Id: {Id}, ImageQuality:{ImageQuality}, IsCapturing:{IsCapturing}, IsFingerOn:{IsFingerOn}, IsSensorOn:{IsSensorOn}, Timeout:{Timeout}  }}";
+        }
 
         #region IDisposable Members
 
         private bool disposed;
-        protected virtual void Dispose(bool disposing)
+
+        private void Dispose(bool disposing)
         {
             if (disposed)
             {
@@ -192,6 +204,7 @@ namespace ScannerDriver
 
         public void Dispose()
         {
+            Log.Debug($"Disposing Scanner Wrapper With CID '{Id}'");
             Dispose(true);
             GC.SuppressFinalize(this);
         }

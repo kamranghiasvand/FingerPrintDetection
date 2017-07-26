@@ -45,24 +45,34 @@ namespace FingerPrintDetectionWeb.Controllers
 
             await Task.Run(() =>
             {
-                if (paramView == null)
-                    paramView = new DatatablesParam();
-                recordsTotal = DbContext.LogicalUsers.Count(m => !m.Deleted);
-                var users = string.IsNullOrEmpty(paramView.customSearch) ?
-                   DbContext.LogicalUsers.Where(m => !m.Deleted).OrderBy(m => m.Id) :
-                   DbContext.LogicalUsers.Where(m => !m.Deleted && (m.FirstName.Contains(paramView.customSearch) || m.LastName.Contains(paramView.customSearch))).OrderBy(m => m.Id);
-                recordsFiltered = users.Count();
-
-                foreach (var user in users.Skip(paramView.start).Take(paramView.length))
+                try
                 {
-                    var row = new Dictionary<string, object>
+                    if (paramView == null)
+                        paramView = new DatatablesParam();
+                    recordsTotal = DbContext.LogicalUsers.Count(m => !m.Deleted);
+                    var users = string.IsNullOrEmpty(paramView.customSearch)
+                        ? DbContext.LogicalUsers.Where(m => !m.Deleted).OrderBy(m => m.Id)
+                        : DbContext.LogicalUsers
+                            .Where(m => !m.Deleted &&
+                                        (m.FirstName.Contains(paramView.customSearch) ||
+                                         m.LastName.Contains(paramView.customSearch))).OrderBy(m => m.Id);
+                    recordsFiltered = users.Count();
+
+                    foreach (var user in users.Skip(paramView.start).Take(paramView.length))
                     {
-                        {"Id", user.Id},
-                        {"FirstName", user.FirstName},
-                        {"LastName", user.LastName},
-                        {"PlanName", (user.Plan!=null&&!user.Plan.Deleted?user.Plan.Name:"")}
-                    };
-                    data.Add(row);
+                        var row = new Dictionary<string, object>
+                        {
+                            {"Id", user.Id},
+                            {"FirstName", user.FirstName},
+                            {"LastName", user.LastName},
+                            {"PlanName", user.Plan != null && !user.Plan.Deleted ? user.Plan.Name : ""}
+                        };
+                        data.Add(row);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex);
                 }
             });
             return Json(new { paramView.draw, recordsTotal, recordsFiltered, data }, JsonRequestBehavior.AllowGet);
@@ -114,8 +124,9 @@ namespace FingerPrintDetectionWeb.Controllers
                             System.IO.File.Delete(path);
                         soundFile.SaveAs(path);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        Log.Error(ex);
                         var res =
                             new
                             {
@@ -136,7 +147,7 @@ namespace FingerPrintDetectionWeb.Controllers
                         Uri = new Uri(path).ToString()
                     });
                     DbContext.SaveChanges();
-                    path = (new Uri(path).ToString());
+                    path = new Uri(path).ToString();
                     model.SoundTrackId = DbContext.SoundTracks.First(m => m.Uri == path).Id;
                 }
                 var plan = DbContext.Plans.First(m => m.Id == model.PlanId);
@@ -167,8 +178,9 @@ namespace FingerPrintDetectionWeb.Controllers
                 DbContext.SaveChanges();
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Log.Error(ex);
                 var res = new { status = "fail", errors = new List<string> { "خطایی در سرور رخ داده است" } };
                 return Json(res);
             }
@@ -187,8 +199,9 @@ namespace FingerPrintDetectionWeb.Controllers
                 return Json(new { status = "success", errors = new string[0] });
 
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Error(ex);
                 var res = new { status = "fail", errors = new[] { "خطایی در سرور رخ داده است" } };
                 return Json(res);
             }
@@ -219,28 +232,35 @@ namespace FingerPrintDetectionWeb.Controllers
 
             await Task.Run(() =>
             {
-                if (paramView == null)
-                    paramView = new DatatablesParam();
-                recordsTotal = DbContext.RealUsers.Count(m => !m.Deleted);
-                var users = string.IsNullOrEmpty(paramView.customSearch) ?
-                   DbContext.RealUsers.Where(m => !m.Deleted).OrderBy(m => m.Id) :
-                   DbContext.RealUsers.Where(m => !m.Deleted && (m.FirstName.Contains(paramView.customSearch) || m.LastName.Contains(paramView.customSearch))).OrderBy(m => m.Id);
-                recordsFiltered = users.Count();
-
-                foreach (var user in users.Skip(paramView.start).Take(paramView.length))
+                try
                 {
-                    var fingers = new bool[3];
-                    fingers[0] = user.FirstFinger != null && user.FirstFinger.Length > 0;
-                    fingers[1] = user.SecondFinger != null && user.SecondFinger.Length > 0;
-                    fingers[2] = user.ThirdFinger != null && user.ThirdFinger.Length > 0;
-                    var row = new Dictionary<string, object>
+                    if (paramView == null)
+                        paramView = new DatatablesParam();
+                    recordsTotal = DbContext.RealUsers.Count(m => !m.Deleted);
+                    var users = string.IsNullOrEmpty(paramView.customSearch) ?
+                       DbContext.RealUsers.Where(m => !m.Deleted).OrderBy(m => m.Id) :
+                       DbContext.RealUsers.Where(m => !m.Deleted && (m.FirstName.Contains(paramView.customSearch) || m.LastName.Contains(paramView.customSearch))).OrderBy(m => m.Id);
+                    recordsFiltered = users.Count();
+
+                    foreach (var user in users.Skip(paramView.start).Take(paramView.length))
+                    {
+                        var fingers = new bool[3];
+                        fingers[0] = user.FirstFinger != null && user.FirstFinger.Length > 0;
+                        fingers[1] = user.SecondFinger != null && user.SecondFinger.Length > 0;
+                        fingers[2] = user.ThirdFinger != null && user.ThirdFinger.Length > 0;
+                        var row = new Dictionary<string, object>
                      {
                          {"Id", user.Id},
                          {"FirstName", user.FirstName},
                          {"LastName", user.LastName},
                         {"Fingers",fingers }
                      };
-                    data.Add(row);
+                        data.Add(row);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex);
                 }
             });
             return Json(new { paramView.draw, recordsTotal, recordsFiltered, data }, JsonRequestBehavior.AllowGet);
@@ -291,8 +311,9 @@ namespace FingerPrintDetectionWeb.Controllers
                     DbContext.RealUsers.Add(realUser);
                     DbContext.SaveChanges();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    Log.Error(ex);
                     var res = new { status = "fail", errors = new[] { "خطایی در سرور رخ داده است" } };
                     return Json(res);
                 }
@@ -305,16 +326,16 @@ namespace FingerPrintDetectionWeb.Controllers
         {
             try
             {
-                if (!(new[] { 0, 1, 2 }.Contains(witchFinger)))
+                if (!new[] { 0, 1, 2 }.Contains(witchFinger))
                     return Json(new { status = "fail", errors = new[] { "انگشت مورد نظر را انتخاب کنید" } });
                 var user = DbContext.RealUsers.FirstOrDefault(m => m.Id == userId && !m.Deleted);
                 if (user == null)
                     return Json(new { status = "fail", errors = new[] { "کاربر مورد نظر را انتخاب کنید" } });
-                var status = await FingerPrintManager.GetScannersState();
+                var status = await ManagerConnector.GetScannersState();
                 if (status.Count == 0)
                     return Json(new { status = "fail", errors = new[] { "اسکنری پیدا نشد" } });
                 var error = "";
-                var template = await FingerPrintManager.CaptureSingleTemplate(status.First().Id, error);
+                var template = await ManagerConnector.CaptureSingleTemplate(status.First().Id, error);
                 if (template == null || template.Length == 0)
                     return Json(new { status = "fail", errors = new[] { "انگشت کاربر تشخیص داده نشد" } });
                 if (witchFinger == 0)
@@ -327,8 +348,9 @@ namespace FingerPrintDetectionWeb.Controllers
                 DbContext.SaveChanges();
                 return Json(new { status = "success" });
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Error(ex);
                 var res = new { status = "fail", errors = new[] { "خطایی در سرور رخ داده است" } };
                 return Json(res);
             }
@@ -349,8 +371,9 @@ namespace FingerPrintDetectionWeb.Controllers
                 return Json(new { status = "success", errors = new string[0] });
 
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Error(ex);
                 var res = new { status = "fail", errors = new[] { "خطایی در سرور رخ داده است" } };
                 return Json(res);
             }
@@ -381,17 +404,19 @@ namespace FingerPrintDetectionWeb.Controllers
 
             await Task.Run(() =>
             {
-                if (paramView == null)
-                    paramView = new DatatablesParam();
-                recordsTotal = DbContext.Plans.Count(m => !m.Deleted);
-                var plans = string.IsNullOrEmpty(paramView.customSearch) ?
-                   DbContext.Plans.Where(m => !m.Deleted).OrderBy(m => m.Id) :
-                   DbContext.Plans.Where(m => !m.Deleted && (m.Name.Contains(paramView.customSearch))).OrderBy(m => m.Id);
-                recordsFiltered = plans.Count();
-
-                foreach (var plan in plans.Skip(paramView.start).Take(paramView.length))
+                try
                 {
-                    var row = new Dictionary<string, object>
+                    if (paramView == null)
+                        paramView = new DatatablesParam();
+                    recordsTotal = DbContext.Plans.Count(m => !m.Deleted);
+                    var plans = string.IsNullOrEmpty(paramView.customSearch) ?
+                       DbContext.Plans.Where(m => !m.Deleted).OrderBy(m => m.Id) :
+                       DbContext.Plans.Where(m => !m.Deleted && (m.Name.Contains(paramView.customSearch))).OrderBy(m => m.Id);
+                    recordsFiltered = plans.Count();
+
+                    foreach (var plan in plans.Skip(paramView.start).Take(paramView.length))
+                    {
+                        var row = new Dictionary<string, object>
                     {
                         {"Id", plan.Id},
                         {"Name", plan.Name},
@@ -402,12 +427,17 @@ namespace FingerPrintDetectionWeb.Controllers
                         {"Description", plan.Description},
                         {"Users", new List<object>()}
                     };
-                    if (plan.Users != null)
-                        foreach (var user in plan.Users.Where(m => !m.Deleted))
-                        {
-                            ((List<object>)row["Users"]).Add(new { user.FirstName, user.LastName });
-                        }
-                    data.Add(row);
+                        if (plan.Users != null)
+                            foreach (var user in plan.Users.Where(m => !m.Deleted))
+                            {
+                                ((List<object>)row["Users"]).Add(new { user.FirstName, user.LastName });
+                            }
+                        data.Add(row);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex);
                 }
             });
             return Json(new { paramView.draw, recordsTotal, recordsFiltered, data }, JsonRequestBehavior.AllowGet);
@@ -456,8 +486,9 @@ namespace FingerPrintDetectionWeb.Controllers
 
                 return Json(new { status = "success", address = Url.Action("PlanList", "Panel") });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Log.Error(ex);
                 var res = new { status = "fail", errors = new List<string> { "خطایی در سرور رخ داده است" } };
                 return Json(res);
             }
@@ -476,8 +507,9 @@ namespace FingerPrintDetectionWeb.Controllers
                 return Json(new { status = "success", errors = new string[0] });
 
             }
-            catch
+            catch(Exception ex)
             {
+                Log.Error(ex);
                 var res = new { status = "fail", errors = new[] { "خطایی در سرور رخ داده است" } };
                 return Json(res);
             }
@@ -497,14 +529,14 @@ namespace FingerPrintDetectionWeb.Controllers
             try
             {
                 var data = new List<object>();
-                var total = await FingerPrintManager.GetScannersState();
+                var total = await ManagerConnector.GetScannersState();
                 if (paramView == null)
                     paramView = new DatatablesParam();
 
                 double recordsTotal = total.Count;
                 var filtered = string.IsNullOrEmpty(paramView.customSearch)
                     ? total.OrderBy(m => m.Id)
-                    : total.Where(m => (m.Id.Contains(paramView.customSearch))).OrderBy(m => m.Id);
+                    : total.Where(m => m.Id.Contains(paramView.customSearch)).OrderBy(m => m.Id);
                 double recordsFiltered = filtered.Count();
 
                 data.AddRange(
@@ -521,8 +553,9 @@ namespace FingerPrintDetectionWeb.Controllers
 
                 return Json(new { paramView.draw, recordsTotal, recordsFiltered, data }, JsonRequestBehavior.AllowGet);
             }
-            catch
+            catch(Exception ex)
             {
+                Log.Error(ex);
                 var res = new { status = "fail", errors = new List<string> { "خطایی در سرور رخ داده است" } };
                 return Json(res);
             }
@@ -532,12 +565,13 @@ namespace FingerPrintDetectionWeb.Controllers
         {
             try
             {
-                FingerPrintManager.Stop();
-                return Json(new { status = "success", address = Url.Action("ScannerManager", "Panel"), state = FingerPrintManager.IsRunning });
+                ManagerConnector.Stop();
+                return Json(new { status = "success", address = Url.Action("ScannerManager", "Panel"), state = ManagerConnector.IsRunning });
             }
-            catch
+            catch(Exception ex)
             {
-                var res = new { status = "fail", errors = new List<string> { "خطایی در سرور رخ داده است" }, state = FingerPrintManager.IsRunning };
+                Log.Error(ex);
+                var res = new { status = "fail", errors = new List<string> { "خطایی در سرور رخ داده است" }, state = ManagerConnector.IsRunning };
                 return Json(res);
             }
         }
@@ -545,12 +579,13 @@ namespace FingerPrintDetectionWeb.Controllers
         {
             try
             {
-                FingerPrintManager.Start();
-                return Json(new { status = "success", address = Url.Action("ScannerManager", "Panel"), state = FingerPrintManager.IsRunning });
+                ManagerConnector.Start();
+                return Json(new { status = "success", address = Url.Action("ScannerManager", "Panel"), state = ManagerConnector.IsRunning });
             }
-            catch
+            catch(Exception ex)
             {
-                var res = new { status = "fail", errors = new List<string> { "خطایی در سرور رخ داده است" }, state = FingerPrintManager.IsRunning };
+                Log.Error(ex);
+                var res = new { status = "fail", errors = new List<string> { "خطایی در سرور رخ داده است" }, state = ManagerConnector.IsRunning };
                 return Json(res);
             }
         }
@@ -558,7 +593,7 @@ namespace FingerPrintDetectionWeb.Controllers
         [HttpPost]
         public JsonResult ToggleScannerManager()
         {
-            return FingerPrintManager.IsRunning ? StopScannerManager() : StartScannerManager();
+            return ManagerConnector.IsRunning ? StopScannerManager() : StartScannerManager();
         }
 
         #endregion
@@ -576,7 +611,7 @@ namespace FingerPrintDetectionWeb.Controllers
         {
 
             var d = DateTime.Parse(gregorianDate);
-            return (new PersianDateTime(d)).ToString(format);
+            return new PersianDateTime(d).ToString(format);
         }
     }
 

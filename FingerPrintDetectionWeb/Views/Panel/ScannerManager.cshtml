@@ -12,10 +12,10 @@
 <div class="row">
     <div class="panel">
         <div class="panel-body">
-            @{var c = ScannerManager.Create().IsRunning ? "alert-success" : "alert-danger";}
+            @{var c = ScannerManagerConnector.Create().IsRunning ? "alert-success" : "alert-danger";}
             <div class="col-lg-12 col-lg-12 col-sm-12 col-xs-12 alert @c">
                 <form action="@Url.Action("ToggleScannerManager", "Panel")" style="padding-right:50%" method="post" id="toggleScannerManagerForm">
-                    <input type="submit" class="btn btn-lg " value="@(ScannerManager.Create().IsRunning ? "توقف" : "راه اندازی" )" />
+                    <input type="submit" class="btn btn-lg " value="@(ScannerManagerConnector.Create().IsRunning ? "توقف" : "راه اندازی" )" />
                 </form>
             </div>
 

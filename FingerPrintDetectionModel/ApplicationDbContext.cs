@@ -26,6 +26,7 @@ namespace FingerPrintDetectionModel
         public DbSet<LogicalUser> LogicalUsers { get; set; }
         public DbSet<Plan> Plans { get; set; }
         public DbSet<Log> Logs { get; set; }
+        public DbSet<ScannerManagerState> ScannerManagerStates { get; set; }
         
     }
     public class UserClaim : IdentityUserClaim<long>
