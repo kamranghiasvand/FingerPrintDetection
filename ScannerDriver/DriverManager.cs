@@ -46,8 +46,30 @@ namespace ScannerDriver
             Log.Debug("Driver Manager Starting");
             try
             {
-                manager.Init();
-                Log.Debug("UFScannerManager Initiated");
+                var status = manager.Init();
+                if (status == UFS_STATUS.OK)
+                    Log.Debug("UFScannerManager Initiated");
+                else
+                {
+                    if (status == UFS_STATUS.ERR_ALREADY_INITIALIZED)
+                    {
+                        Log.Debug("Updating UFScannerManager");
+                        status=manager.Update();
+                        if(status!=UFS_STATUS.OK)
+                        {
+                            UFScanner.GetErrorString(status, out error);
+                            Log.Info("UFScannerManager Not Initiated");
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        UFScanner.GetErrorString(status, out error);
+                        Log.Info("UFScannerManager Not Initiated");
+                        return false;
+                    }
+                }
+
                 if (manager.Scanners != null)
                 {
                     Log.Debug("Available Scanner Number: " + manager.Scanners.Count);
@@ -69,13 +91,13 @@ namespace ScannerDriver
                             var scanner = new ScannerWrapper(manager.Scanners[i], this);
                             Scanners.Add(scanner.Id, scanner);
                             scanner.CaptureEvent += Scanner_CaptureEvent;
-                           
+
                             Log.Debug("Start Capturing Scanner With Serial '" + manager.Scanners[i].Serial + "'");
                             scanner.StartCapturing(out mess);
                             if (!string.IsNullOrEmpty(mess))
                                 Log.Error(mess);
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             Log.Error(ex);
                         }
@@ -211,7 +233,7 @@ namespace ScannerDriver
 
 
 
-            
+
         }
 
         private long Verify(byte[] template)
@@ -270,10 +292,10 @@ namespace ScannerDriver
                         try
                         {
                             Log.Debug($"Stopping Scanner With Serial '{scanner.Value.Id}'");
-                        string mess;
-                        scanner.Value.StopCapturing(out mess);
-                        if (!string.IsNullOrEmpty(mess))
-                            Log.Error(mess);
+                            string mess;
+                            scanner.Value.StopCapturing(out mess);
+                            if (!string.IsNullOrEmpty(mess))
+                                Log.Error(mess);
                         }
                         catch (Exception ex)
                         {
@@ -282,10 +304,10 @@ namespace ScannerDriver
                     }
                 Scanners?.Clear();
                 Log.Debug("UnInitiating UFScanner");
-               var status= manager.Uninit();
+                var status = manager.Uninit();
                 if (status == UFS_STATUS.OK)
                     Log.Debug(status.ToString());
-                else 
+                else
                     Log.Error(status.ToString());
                 return true;
             }
@@ -311,7 +333,7 @@ namespace ScannerDriver
                 error = "Scanner not found";
                 return false;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Error(ex);
                 error = "System Failure";
@@ -333,11 +355,11 @@ namespace ScannerDriver
                 var scanner = Scanners.FirstOrDefault(m => m.Key == scannerId);
                 if (scanner.Value != null)
                     return scanner.Value.CaptureSingleTemplate(out error);
-                
+
                 error = "Scanner not found";
                 return new byte[0];
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Error(ex);
                 error = "System Failure";
@@ -360,7 +382,7 @@ namespace ScannerDriver
                 error = "Scanner not found";
                 return null;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Error(ex);
                 error = "System Failure";
@@ -387,7 +409,7 @@ namespace ScannerDriver
                     Timeout = item.Value.Timeout
                 }).ToList();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Error(ex);
             }
