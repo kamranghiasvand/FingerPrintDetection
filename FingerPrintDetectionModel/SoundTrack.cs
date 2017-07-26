@@ -16,6 +16,10 @@ namespace FingerPrintDetectionModel
         public SoundTrackType Type { get; set; }
         public bool Deleted { get; set; }
         public string Name { get; set; }
+        public override string ToString()
+        {
+            return $"{{ Id:{Id}, Uri:{Uri}, Duration:{Duration}, Type:{Type}, Deleted:{Deleted}, Name:{Name} }}";
+        }
 
     }
 

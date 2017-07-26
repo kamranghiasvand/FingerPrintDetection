@@ -13,6 +13,11 @@ namespace FingerPrintDetectionModel
         public long LogicalUserId { get; set; }
         public long PlanId { get; set; }
         public bool Deleted { get; set; }
+        public override string ToString()
+        {
+            return
+                $"{{ Id:{Id}, Income:{Income}, Time:{Time}, RealUserId:{RealUserId}, LogicalUserId:{LogicalUserId}, PlanId:{PlanId} , Deleted: {Deleted} }}";
+        }
     }
 
 }
