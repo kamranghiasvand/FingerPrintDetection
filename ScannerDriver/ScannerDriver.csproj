@@ -152,6 +152,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Dlls\hasp_windows.dll" />
     <Content Include="Dlls\hasp_windows_x64.dll" />
     <Content Include="Dlls\Suprema.UFDatabase.dll" />
     <Content Include="Dlls\Suprema.UFMatcher.dll" />
@@ -166,6 +167,7 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Dlls\Get-ExeTargetMachine.ps1" />
     <None Include="Dlls\Suprema.tlb" />
     <None Include="Dlls\UFLicense.dat" />
     <None Include="packages.config" />
