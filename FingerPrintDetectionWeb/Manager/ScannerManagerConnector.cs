@@ -16,7 +16,8 @@ namespace FingerPrintDetectionWeb.Manager
     {
         public bool IsRunning { get; private set; }
         public readonly ILog Log = LogManager.GetLogger(typeof(ScannerManagerConnector));
-        public ScannerManagerConnector()
+        private static ScannerManagerConnector instance;
+        private ScannerManagerConnector()
         {
             try
             {
@@ -41,7 +42,9 @@ namespace FingerPrintDetectionWeb.Manager
 
         public static ScannerManagerConnector Create()
         {
-            var instance = new ScannerManagerConnector();
+            if (instance != null)
+                return instance;
+            instance = new ScannerManagerConnector();
             using (var dbContext = new ApplicationDbContext())
             {
                 var state = dbContext.ScannerManagerStates.FirstOrDefault();

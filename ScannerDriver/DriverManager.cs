@@ -56,21 +56,21 @@ namespace ScannerDriver
                         try
                         {
                             string mess;
-                            if (Scanners.Keys.Contains(manager.Scanners[i].CID))
+                            if (Scanners.Keys.Contains(manager.Scanners[i].Serial))
                             {
-                                Log.Debug("Scanner With CID '" + manager.Scanners[i].CID + "' Initiated Before.");
-                                Log.Debug("Start Capturing Scanner With CID '" + manager.Scanners[i].CID + "'");
-                                Scanners[manager.Scanners[i].CID].StartCapturing(out mess);
+                                Log.Debug("Scanner With Serial '" + manager.Scanners[i].Serial + "' Initiated Before.");
+                                Log.Debug("Start Capturing Scanner With Serial '" + manager.Scanners[i].Serial + "'");
+                                Scanners[manager.Scanners[i].Serial].StartCapturing(out mess);
                                 if (!string.IsNullOrEmpty(mess))
                                     Log.Error(mess);
                                 continue;
                             }
-                            Log.Debug("Scanner With CID '" + manager.Scanners[i].CID + "' Is New");
+                            Log.Debug("Scanner With Serial '" + manager.Scanners[i].Serial + "' Is New");
                             var scanner = new ScannerWrapper(manager.Scanners[i], this);
                             Scanners.Add(scanner.Id, scanner);
                             scanner.CaptureEvent += Scanner_CaptureEvent;
                            
-                            Log.Debug("Start Capturing Scanner With CID '" + manager.Scanners[i].CID + "'");
+                            Log.Debug("Start Capturing Scanner With Serial '" + manager.Scanners[i].Serial + "'");
                             scanner.StartCapturing(out mess);
                             if (!string.IsNullOrEmpty(mess))
                                 Log.Error(mess);
@@ -96,7 +96,7 @@ namespace ScannerDriver
 
         private void Scanner_CaptureEvent(ScannerWrapper sender, byte[] template, string error)
         {
-            Log.Debug($"Scanner With CID {sender.Id} Detect New Finger. error:'{error}' templateLen:'{template?.Length}'");
+            Log.Debug($"Scanner With Serial {sender.Id} Detect New Finger. error:'{error}' templateLen:'{template?.Length}'");
 
             if (!string.IsNullOrEmpty(error))
             {
@@ -214,7 +214,7 @@ namespace ScannerDriver
             
         }
 
-        private static long Verify(byte[] template)
+        private long Verify(byte[] template)
         {
             try
             {
@@ -251,9 +251,9 @@ namespace ScannerDriver
                 }
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // ignored
+                Log.Error(ex);
             }
             return -1;
         }
@@ -264,24 +264,23 @@ namespace ScannerDriver
             IsRunning = false;
             try
             {
-                if (manager.Scanners != null)
-                    for (var i = 0; i < manager.Scanners.Count; ++i)
+                if (Scanners != null)
+                    foreach (var scanner in Scanners)
                     {
                         try
                         {
-                            Log.Debug($"Stopping Scanner With CID '{manager.Scanners[i].CID}'");
-                            var scanner = new ScannerWrapper(manager.Scanners[i], this);
-                            Scanners.Remove(scanner.Id);
-                            string mess;
-                            scanner.StopCapturing(out mess);
-                            if (!string.IsNullOrEmpty(mess))
-                                Log.Error(mess);
+                            Log.Debug($"Stopping Scanner With Serial '{scanner.Value.Id}'");
+                        string mess;
+                        scanner.Value.StopCapturing(out mess);
+                        if (!string.IsNullOrEmpty(mess))
+                            Log.Error(mess);
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             Log.Error(ex);
                         }
                     }
+                Scanners?.Clear();
                 Log.Debug("UnInitiating UFScanner");
                var status= manager.Uninit();
                 if (status == UFS_STATUS.OK)
@@ -302,7 +301,7 @@ namespace ScannerDriver
         {
             try
             {
-                Log.Debug($"Driver Manager Start Capturing Scanner With CID '{scannerId}'");
+                Log.Debug($"Driver Manager Start Capturing Scanner With Serial '{scannerId}'");
                 if (string.IsNullOrEmpty(scannerId))
                 {
                     error = "ScannerId is null";
@@ -324,7 +323,7 @@ namespace ScannerDriver
         {
             try
             {
-                Log.Debug($"Capturing Single Image From Scanner With CID '{scannerId}'");
+                Log.Debug($"Capturing Single Image From Scanner With Serial '{scannerId}'");
 
                 if (string.IsNullOrEmpty(scannerId))
                 {
@@ -350,7 +349,7 @@ namespace ScannerDriver
         {
             try
             {
-                Log.Debug($"Getting Scanner With CID '{scannerId}'");
+                Log.Debug($"Getting Scanner With Serial '{scannerId}'");
                 error = "";
                 if (string.IsNullOrEmpty(scannerId))
                 {

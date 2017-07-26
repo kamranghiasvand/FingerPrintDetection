@@ -22,6 +22,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -156,9 +157,7 @@
     <Content Include="Dlls\Suprema.UFMatcher.dll" />
     <Content Include="Dlls\Suprema.UFScanner.dll" />
     <Content Include="Dlls\UFDatabase.dll" />
-    <Content Include="Dlls\UFDatabase.mdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="Dlls\UFDatabase.mdb" />
     <Content Include="Dlls\UFMatcher.dll" />
     <Content Include="Dlls\UFScanner.dll" />
     <Content Include="Dlls\UFScanner_IZZIX.dll" />

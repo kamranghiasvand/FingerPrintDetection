@@ -17,7 +17,7 @@ namespace FingerPrintDetectionWeb.Controllers
 
         public ApplicationUserManager UserManager => HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
 
-        protected ScannerManagerConnector ManagerConnector => HttpContext.GetOwinContext().GetUserManager<ScannerManagerConnector>();
+        protected ScannerManagerConnector ManagerConnector => ScannerManagerConnector.Create();
         protected ApplicationDbContext DbContext => HttpContext.GetOwinContext().Get<ApplicationDbContext>();
         public LoginUser GetCurrentUser() => UserManager.FindById(User.Identity.GetUserId<long>());
 

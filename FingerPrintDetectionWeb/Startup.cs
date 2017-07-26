@@ -1,12 +1,10 @@
-﻿using System;
-using System.Threading;
-using System.Web.Hosting;
-using FingerPrintDetectionWeb.Manager;
+﻿using FingerPrintDetectionWeb.Manager;
+using log4net.Config;
 using Microsoft.Owin;
-using Microsoft.Owin.BuilderProperties;
 using Owin;
 
-[assembly: OwinStartupAttribute(typeof(FingerPrintDetectionWeb.Startup))]
+[assembly: OwinStartup(typeof(FingerPrintDetectionWeb.Startup))]
+[assembly: XmlConfigurator(ConfigFile = "Web.config", Watch = true)]
 namespace FingerPrintDetectionWeb
 {
     public partial class Startup
@@ -15,7 +13,7 @@ namespace FingerPrintDetectionWeb
         public void Configuration(IAppBuilder app)
         {
             ConfigureAuth(app);
-            app.CreatePerOwinContext(ScannerManagerConnector.Create);
+           // app.CreatePerOwinContext(ScannerManagerConnector.Create);
         }
         
     }

@@ -23,7 +23,7 @@ namespace ScannerDriver
         }
 
         public bool IsCapturing => scanner.IsCapturing;
-        public string Id => scanner.ID;
+        public string Id => scanner.Serial;
         public bool IsFingerOn => scanner.IsFingerOn;
         public bool IsSensorOn => scanner.IsSensorOn;
 
