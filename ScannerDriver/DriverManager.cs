@@ -24,9 +24,7 @@ namespace ScannerDriver
         {
             Log.Debug("Creating New Instance");
             manager = new UFScannerManager(this);
-            manager.ScannerEvent += Manager_ScannerEvent;
-            manager.Init();
-
+            manager.ScannerEvent += Manager_ScannerEvent;          
         }
 
         public static DriverManager Create()
