@@ -8,6 +8,7 @@ namespace FingerPrintDetectionModel
         [Key]
         public long Id { get; set; }
         public bool Income { get; set; }
+        [Column(TypeName = "datetime2")]
         public DateTime Time { get; set; }
         public long RealUserId { get; set; }
         public long LogicalUserId { get; set; }

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FingerPrintDetectionModel
 {
@@ -17,7 +15,9 @@ namespace FingerPrintDetectionModel
         public int RepeatNumber { get; set; }
         public int MaxNumberOfUse { get; set; }
         public virtual ICollection<LogicalUser> Users { get; set; } = new List<LogicalUser>();
+        [Column(TypeName = "datetime2")]
         public DateTime StartTime { get; set; }
+        [Column(TypeName = "datetime2")]
         public DateTime EndTime { get; set; }
 
     }

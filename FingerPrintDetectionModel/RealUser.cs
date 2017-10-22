@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FingerPrintDetectionModel
 {
@@ -17,6 +14,7 @@ namespace FingerPrintDetectionModel
         public byte[] SecondFinger { get; set; }
         public byte[] ThirdFinger { get; set; }
         public virtual LogicalUser LogicalUser { get; set; }
+        [Column(TypeName = "datetime2")]
         public DateTime Birthday { get; set; }
         public bool Deleted { get; set; }
     }

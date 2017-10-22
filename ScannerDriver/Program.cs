@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using Common.Logging;
 using log4net.Config;
@@ -18,6 +19,7 @@ namespace ScannerDriver
         {
             try
             {
+
                 Console.WriteLine("starting...");
                 Log.Debug("Starting...");
                 if (Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName).Length > 1)

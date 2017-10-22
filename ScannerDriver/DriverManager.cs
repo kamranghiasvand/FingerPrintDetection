@@ -198,23 +198,30 @@ namespace ScannerDriver
                     Log.Debug("Sound To Play: " + sound);
                     try
                     {
-                        Log.Debug("Sound Playing");
-                        using (IWavePlayer waveOutDevice = new WaveOut())
+                        if (!File.Exists(new Uri(sound.Uri).AbsolutePath))
                         {
-                            var audioFileReader = new AudioFileReader(new Uri(sound.Uri).AbsolutePath);
-                            waveOutDevice.Init(audioFileReader);
-                            for (var i = 0; i < user.LogicalUser.Plan.RepeatNumber; ++i)
-                            {
-                                waveOutDevice.Play();
-                                while (waveOutDevice.PlaybackState == PlaybackState.Playing)
-                                {
-                                    Thread.Sleep(100);
-                                }
-                                audioFileReader.Seek(0, SeekOrigin.Begin);
-
-                            }
+                            Log.Debug("file not exist");
                         }
-                        Log.Debug("Sound Played");
+                        else
+                        {
+                            Log.Debug("Sound Playing");
+                            using (IWavePlayer waveOutDevice = new WaveOut())
+                            {
+                                var audioFileReader = new AudioFileReader(new Uri(sound.Uri).AbsolutePath);
+                                waveOutDevice.Init(audioFileReader);
+                                for (var i = 0; i < user.LogicalUser.Plan.RepeatNumber; ++i)
+                                {
+                                    waveOutDevice.Play();
+                                    while (waveOutDevice.PlaybackState == PlaybackState.Playing)
+                                    {
+                                        Thread.Sleep(100);
+                                    }
+                                    audioFileReader.Seek(0, SeekOrigin.Begin);
+
+                                }
+                            }
+                            Log.Debug("Sound Played");
+                        }
                     }
                     catch (Exception ex)
                     {

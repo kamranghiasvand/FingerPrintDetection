@@ -117,6 +117,7 @@ namespace FingerPrintDetectionWeb.Controllers
                     var path = Server.MapPath("~/App_Data/uploads/");
                     if (!Directory.Exists(path))
                         Directory.CreateDirectory(path);
+                    fileName =Guid.NewGuid().ToString();
                     path = Path.Combine(path, fileName);
                     try
                     {
